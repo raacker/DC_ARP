@@ -15,7 +15,7 @@ CARPLayer::~CARPLayer(void)
 void CARPLayer::ResetHeader()
 {
 	arpHeader.arpHardwareType = 0x1;
-	arpHeader.arpProtocolType = 0x0800;
+	arpHeader.arpProtocolType = 0x3412;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
@@ -77,6 +77,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	if(isCacheAvailable == TRUE)
 	{
 		setTargetHardwareAddress((*cacheIter).ethernetAddress);
+		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
 	}
 	else
 	{
@@ -94,5 +95,38 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 
 BOOL CARPLayer::Receive(unsigned char* ppayload)
 {
+	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
+	
+	
+	BOOL bSuccess = FALSE ;
 
+	char* receivedARPTargetIPAddress = (char*)pARPFrame->arpTargetIPAddress;
+	char* receivedARPTargetHardwareAddress = (char*)pARPFrame->arpTargetHardwareAddress;
+	if ( memcmp(receivedARPTargetIPAddress, ownIPAddress, 4) == 0)
+	{
+		BOOL isARPRecordExist = FALSE;
+		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
+		for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
+		{
+			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
+			{
+				isARPRecordExist = TRUE;
+				memcpy((*arpIter).ethernetAddress,ownMACAddress, 6);
+				break;
+			}
+		}
+
+		if(isARPRecordExist == FALSE)
+		{
+			ARP_CACHE_RECORD newRecord;
+			newRecord.arpInterface = adapter;
+			memcpy(newRecord.ethernetAddress, receivedARPTargetHardwareAddress, 6);
+			memcpy(newRecord.ipAddress, receivedARPTargetIPAddress, 4);
+			newRecord.isComplete = TRUE;
+
+			arpCacheTable.push_back(newRecord);
+		}
+
+		// ARP reply 헤더 만들기!!!!!!!!!!!!!!!!!!
+	}
 }

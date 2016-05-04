@@ -36,15 +36,15 @@ public:
 		unsigned char arpTargetIPAddress[4];
 		unsigned char arpData[ARP_DATA_SIZE];
 
-	} ARP_HEADER, *LPARP_HEADER;
+	} ARP_HEADER, *PARP_HEADER;
 
 	typedef struct _ARP_CACHE_RECORD
 	{
-		unsigned char arpInterface[6];
+		LPADAPTER arpInterface;
 		unsigned char ipAddress[4];
 		unsigned char ethernetAddress[6];
 		BOOL isComplete;
-	} ARP_CACHE_RECORD, *LPARP_CACHE_RECORD;
+	} ARP_CACHE_RECORD, *PARP_CACHE_RECORD;
 
 	void setARPOperationType(unsigned char operationType);
 	void setSenderIPAddress(unsigned char* senderIP);
@@ -59,6 +59,8 @@ protected:
 	ARP_HEADER arpHeader;
 	list<ARP_CACHE_RECORD> arpCacheTable;
 	LPADAPTER adapter;
+	unsigned char ownMACAddress[6];
+	unsigned char ownIPAddress[4];
 	unsigned char targetIPAddress[4];
 };
 
