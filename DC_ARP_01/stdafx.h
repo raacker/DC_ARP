@@ -78,7 +78,7 @@ using namespace std;
 
 #define IP_HEADER_SIZE			( sizeof(unsigned short) * 4 +					\
 								  sizeof(unsigned char) * 12  )
-#define IP_DATA_SIZE			( ETHER_MAX_SIZE - (	APR_HEADER_SIZE + \
+#define IP_DATA_SIZE			( ETHER_MAX_SIZE - (	ARP_HEADER_SIZE + \
 														IP_HEADER_SIZE  + \
 														ETHER_HEADER_SIZE ))
 
@@ -86,7 +86,6 @@ using namespace std;
 								  sizeof(unsigned char)  +				\
 								  sizeof(unsigned long) )
 #define APP_DATA_SIZE 			( ETHER_MAX_DATA_SIZE - ( APP_HEADER_SIZE +		\
-												          TCP_HEADER_SIZE +		\
 												          IP_HEADER_SIZE ) )
 
 
