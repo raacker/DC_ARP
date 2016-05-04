@@ -62,7 +62,7 @@ CDC_ARP_01Dlg::CDC_ARP_01Dlg(CWnd* pParent /*=NULL*/)
 	m_LayerMgr.AddLayer( new CIPLayer( "IP" ) );
 	m_LayerMgr.AddLayer( new CApplicationLayer( "APP" ) ) ;
 
-	m_LayerMgr.ConnectLayers("NI ( *Ethernet ( *IP ( *ARP ( *APP ) ) ) )");
+	m_LayerMgr.ConnectLayers("NI ( *Ethernet ( *ARP ( *IP ( *APP ) ) ) )");
 
 	m_APP = (CApplicationLayer *)m_LayerMgr.GetLayer("APP");
 	m_IP = (CIPLayer *)m_LayerMgr.GetLayer("IP");
@@ -193,10 +193,12 @@ void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
 void CDC_ARP_01Dlg::OnBnClickedArpSendButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
 }
 
 
 void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	AfxGetMainWnd()->PostMessage(WM_COMMAND,ID_APP_EXIT,0);
 }
