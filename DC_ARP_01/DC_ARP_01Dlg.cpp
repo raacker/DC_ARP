@@ -49,14 +49,33 @@ END_MESSAGE_MAP()
 
 
 CDC_ARP_01Dlg::CDC_ARP_01Dlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDC_ARP_01Dlg::IDD, pParent)
+	: CDialogEx(CDC_ARP_01Dlg::IDD, pParent),
+	CBaseLayer( "ArpDlg" ),
+	m_bSendReady(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_LayerMgr.AddLayer( this ) ;
+	m_LayerMgr.AddLayer( new CNILayer( "NI" ) ) ;
+	m_LayerMgr.AddLayer( new CEthernetLayer( "Ethernet" ) ) ;
+	m_LayerMgr.AddLayer( new CARPLayer( "ARP" ) );
+	m_LayerMgr.AddLayer( new CIPLayer( "IP" ) );
+	m_LayerMgr.AddLayer( new CApplicationLayer( "APP" ) ) ;
+
+	m_LayerMgr.ConnectLayers("NI ( *Ethernet ( *IP ( *ARP ( *APP ) ) ) )");
+
+	m_APP = (CApplicationLayer *)m_LayerMgr.GetLayer("APP");
+	m_IP = (CIPLayer *)m_LayerMgr.GetLayer("IP");
+	m_ARP = (CARPLayer *)m_LayerMgr.GetLayer("ARP");
+	m_ETH = (CEthernetLayer *)m_LayerMgr.GetLayer("Ethernet");
+	m_NI = (CNILayer *)m_LayerMgr.GetLayer("NI");
 }
 
 void CDC_ARP_01Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_ARP_CACHE_TABLE_LIST, m_ArpTable);
+	DDX_Control(pDX, IDC_ARP_SEND_IP, m_DstIPAddr);
 }
 
 BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
@@ -160,12 +179,14 @@ HCURSOR CDC_ARP_01Dlg::OnQueryDragIcon()
 void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
 }
 
 
 void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
 }
 
 

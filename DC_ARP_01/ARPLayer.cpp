@@ -2,7 +2,9 @@
 #include "ARPLayer.h"
 
 CARPLayer::CARPLayer(char* pName)
+: CBaseLayer( pName )
 {
+	ResetHeader();
 }
 
 
