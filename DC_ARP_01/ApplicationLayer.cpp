@@ -8,7 +8,7 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 CApplicationLayer::CApplicationLayer( char* pName )
-	: CBaseLayer( pName ),
+: CBaseLayer( pName ),
 	mp_Dlg( NULL )
 {
 }

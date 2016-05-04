@@ -58,14 +58,15 @@ CDC_ARP_01Dlg::CDC_ARP_01Dlg(CWnd* pParent /*=NULL*/)
 	m_LayerMgr.AddLayer( this ) ;
 	m_LayerMgr.AddLayer( new CNILayer( "NI" ) ) ;
 	m_LayerMgr.AddLayer( new CEthernetLayer( "Ethernet" ) ) ;
-	//m_LayerMgr.AddLayer( new CArp)
+	m_LayerMgr.AddLayer( new CARPLayer( "ARP" ) );
 	m_LayerMgr.AddLayer( new CIPLayer( "IP" ) );
 	m_LayerMgr.AddLayer( new CApplicationLayer( "APP" ) ) ;
 
-	m_LayerMgr.ConnectLayers("NI ( *Ethernet ( *IP ( *ARP ) ) )");
+	m_LayerMgr.ConnectLayers("NI ( *Ethernet ( *IP ( *ARP ( *APP ) ) ) )");
 
 	m_APP = (CApplicationLayer *)m_LayerMgr.GetLayer("APP");
 	m_IP = (CIPLayer *)m_LayerMgr.GetLayer("IP");
+	m_ARP = (CARPLayer *)m_LayerMgr.GetLayer("ARP");
 	m_ETH = (CEthernetLayer *)m_LayerMgr.GetLayer("Ethernet");
 	m_NI = (CNILayer *)m_LayerMgr.GetLayer("NI");
 }

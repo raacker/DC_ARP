@@ -6,6 +6,7 @@
 #include "LayerManager.h"	// Added by ClassView
 #include "ApplicationLayer.h"	// Added by ClassView
 #include "EthernetLayer.h"	// Added by ClassView
+#include "ARPLayer.h"
 #include "IPLayer.h"		// Added by ClassView
 #include "NILayer.h"		// Added by ClassView
 #include "afxwin.h"
@@ -49,7 +50,7 @@ private:
 	CLayerManager	m_LayerMgr;
 	BOOL			m_bSendReady;
 
-	CApplicationLayer m_APP;
+	CApplicationLayer* m_APP;
 	CARPLayer*		m_ARP;
 	CIPLayer*		m_IP;
 	CEthernetLayer*	m_ETH;

@@ -86,6 +86,8 @@ using namespace std;
 								  sizeof(unsigned char)  +				\
 								  sizeof(unsigned long) )
 #define APP_DATA_SIZE 			( ETHER_MAX_DATA_SIZE - ( APP_HEADER_SIZE +		\
+												          IP_HEADER_SIZE +		\
+												          ARP_HEADER_SIZE ) )
 
 #define TCP_PORT_CHAT	0x2024
 
