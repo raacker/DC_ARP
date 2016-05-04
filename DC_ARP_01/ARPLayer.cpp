@@ -56,17 +56,16 @@ void CARPLayer::setTargetHardwareAddress(unsigned char* targetHard)
 
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
-	IPLayer_HEADER ipHeader;
+	// ip address 받아와서 확인하는 작업 안되어있다.
+	CIPLayer::IPLayer_HEADER ipHeader;
 
 	memcpy( arpHeader.arpData, ppayload, length );
-	
-	memcpy( ipHeader, ppayload, IP_HEADER_SIZE);
 
 	BOOL isCacheAvailable = FALSE;
 	list<ARP_CACHE_RECORD>::iterator cacheIter = arpCacheTable.begin();
 	for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)
 	{
-		if(memcmp((*cacheIter).ipAddress, ipHeader.ip_dst, 4) == 0)
+		if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0)
 		{
 			isCacheAvailable = TRUE;
 			break;
@@ -80,6 +79,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	else
 	{
 		setTargetHardwareAddress(NULL);
+		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
 	}
 	setTargetIPAddress(ipHeader.ip_dst);
 

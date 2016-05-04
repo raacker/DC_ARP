@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "DC_ARP_01.h"
 #include "EthernetLayer.h"
+#include "ARPLayer.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

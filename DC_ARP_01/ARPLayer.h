@@ -59,5 +59,6 @@ protected:
 	ARP_HEADER arpHeader;
 	list<ARP_CACHE_RECORD> arpCacheTable;
 	LPADAPTER adapter;
+	unsigned char targetIPAddress[4];
 };
 

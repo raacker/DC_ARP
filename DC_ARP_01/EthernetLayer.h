@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "BaseLayer.h"
+#include "ARPLayer.h"
 
 class CEthernetLayer 
 : public CBaseLayer  
