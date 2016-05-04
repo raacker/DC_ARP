@@ -63,6 +63,10 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_ARP_ITEM_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton)
+	ON_BN_CLICKED(IDC_ARP_ALL_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton)
+	ON_BN_CLICKED(IDC_ARP_SEND_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpSendButton)
+	ON_BN_CLICKED(IDC_WINDOW_OK_BUTTON, &CDC_ARP_01Dlg::OnBnClickedWindowOkButton)
 END_MESSAGE_MAP()
 
 
@@ -151,3 +155,27 @@ HCURSOR CDC_ARP_01Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDC_ARP_01Dlg::OnBnClickedArpSendButton()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
