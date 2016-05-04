@@ -89,7 +89,6 @@ using namespace std;
 												          IP_HEADER_SIZE +		\
 												          ARP_HEADER_SIZE ) )
 
-
 #define TCP_PORT_CHAT	0x2024
 
 #define NI_COUNT_NIC	10
