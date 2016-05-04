@@ -70,13 +70,13 @@ using namespace std;
 								  sizeof(unsigned char) * 6 + \
 								  sizeof(unsigned char) * 4 + \
 								  sizeof(unsigned char) * 6 + \
-								  sizeof(unsigned char) * 4 + \)
+								  sizeof(unsigned char) * 4 )
 
 
 #define ARP_DATA_SIZE			( ETHER_MAX_SIZE - (	ARP_HEADER_SIZE  + \
 														ETHER_HEADER_SIZE ))
 
-#define IP_HEADER_SIZE			( sizeof(unsigned short) * 4 +					\
+#define IP_HEADER_SIZE			( sizeof(unsigned short) * 4 +	\
 								  sizeof(unsigned char) * 12  )
 #define IP_DATA_SIZE			( ETHER_MAX_SIZE - (	ARP_HEADER_SIZE + \
 														IP_HEADER_SIZE  + \
@@ -86,13 +86,12 @@ using namespace std;
 								  sizeof(unsigned char)  +				\
 								  sizeof(unsigned long) )
 #define APP_DATA_SIZE 			( ETHER_MAX_DATA_SIZE - ( APP_HEADER_SIZE +		\
-												          IP_HEADER_SIZE ) )
-
 
 #define TCP_PORT_CHAT	0x2024
 
 #define NI_COUNT_NIC	10
 
+unsigned char BROADCAST_ADDR[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
 #endif // !defined(AFX_STDAFX_H__119ECB1B_6E70_4662_A2A9_A20B5201CA81__INCLUDED_)
