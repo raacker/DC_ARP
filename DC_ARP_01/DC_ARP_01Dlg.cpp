@@ -18,7 +18,7 @@ class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
-
+//§æ§æ»˜∆R
 // ¥Î»≠ ªÛ¿⁄ µ•¿Ã≈Õ¿‘¥œ¥Ÿ.
 	enum { IDD = IDD_ABOUTBOX };
 
