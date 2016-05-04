@@ -20,13 +20,15 @@ public:
 	virtual ~CApplicationLayer();
 
 	typedef struct _APP_HEADER {
+		unsigned long	app_seq_num;	// APP Sequential Number
+		unsigned short	app_totlen	;	// total length of the data
+		unsigned char	app_type	;	// type of application data
 
-		unsigned int	app_dstaddr	; // destination address of application layer
-		unsigned int	app_srcaddr	; // source address of application layer
-		unsigned short	app_length	; // total length of the data
-		unsigned char	app_type	; // type of application data
 		unsigned char	app_data[ APP_DATA_SIZE ] ; // application data
 
-	} _APP_HEADER, *PAPP_HEADER ;
+	} APP_HEADER, *PAPP_HEADER ;
+
+protected:
+	APP_HEADER		m_sHeader ;
 };
 

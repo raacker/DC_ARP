@@ -11,6 +11,7 @@ CApplicationLayer::CApplicationLayer( char* pName )
 : CBaseLayer( pName ),
 	mp_Dlg( NULL )
 {
+	ResetHeader();
 }
 
 CApplicationLayer::~CApplicationLayer()
@@ -19,8 +20,8 @@ CApplicationLayer::~CApplicationLayer()
 
 void CApplicationLayer::ResetHeader( )
 {
-	m_sHeader.capp_totlen  = 0x0000 ;
-	m_sHeader.capp_type    = 0x00 ;
+	m_sHeader.app_totlen  = 0x0000 ;
+	m_sHeader.app_type    = 0x00 ;
 
-	memset( m_sHeader.capp_data, 0, APP_DATA_SIZE ) ;
+	memset( m_sHeader.app_data, 0, APP_DATA_SIZE ) ;
 }
