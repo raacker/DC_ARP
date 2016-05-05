@@ -20,6 +20,9 @@ private:
 	inline void		ResetHeader( );
 
 public:
+	unsigned short ARP_REQUEST;
+	unsigned short ARP_REPLY;
+
 	CARPLayer(char* pName);
 	virtual ~CARPLayer(void);
 

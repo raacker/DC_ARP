@@ -32,7 +32,7 @@ void CEthernetLayer::ResetHeader()
 	memset( m_sHeader.enet_dstaddr.addrs, 0, 6 ) ;
 	memset( m_sHeader.enet_srcaddr.addrs, 0, 6 ) ;
 	memset( m_sHeader.enet_data, 0, ETHER_MAX_DATA_SIZE ) ;
-	m_sHeader.enet_type = 0x0008 ; // 0x0800
+	m_sHeader.enet_type = 0x0608 ; // 0x0800
 }
 
 unsigned char* CEthernetLayer::GetEnetDstAddress() 
