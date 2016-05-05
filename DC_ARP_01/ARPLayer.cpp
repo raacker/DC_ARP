@@ -91,16 +91,22 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 		}
 	}
 
-	if(isCacheAvailable == TRUE)
+	//if cache is vaild and complete record
+	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))
 	{
 		setTargetHardwareAddress((*cacheIter).ethernetAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
 	}
+	//it is not valid record
 	else
 	{
+		memset(arpHeader.arpTargetHardwareAddress, 0, 6);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
 	}
 	
+	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
+	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
+	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	arpHeader.arpOperationType = 0x1;
 	
 	ARP_CACHE_RECORD newRecord;
