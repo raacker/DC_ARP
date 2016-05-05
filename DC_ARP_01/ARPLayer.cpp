@@ -122,12 +122,14 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 {
 	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
 	
-	
 	BOOL bSuccess = FALSE ;
 
 	char* receivedARPTargetIPAddress = (char*)pARPFrame->arpTargetIPAddress;
 	char* receivedARPTargetHardwareAddress = (char*)pARPFrame->arpTargetHardwareAddress;
-	if ( memcmp(receivedARPTargetIPAddress, ownIPAddress, 4) == 0)
+	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
+		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
+		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
+		 (receivedARPTargetIPAddress[3] == ownIPAddress[3]))
 	{
 		BOOL isARPRecordExist = FALSE;
 		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
