@@ -241,12 +241,15 @@ void CDC_ARP_01Dlg::OnButtonAddrSet()
 
 		m_IP->SetSrcIPAddress(src_ip);
 		m_IP->SetDstIPAddress(dst_ip);
+		m_ARP->setSenderIPAddress(src_ip);
+		m_ARP->setTargetIPAddress(dst_ip);
 
 		sscanf(m_unSrcEnetAddr, "%02x%02x%02x%02x%02x%02x", &src_mac[0],&src_mac[1],&src_mac[2],&src_mac[3],&src_mac[4],&src_mac[5]);
 		sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
 
 		m_ETH->SetEnetSrcAddress(src_mac);
 		m_ETH->SetEnetDstAddress(dst_mac);
+		m_ARP->setSenderHardwareAddress(src_mac);
 
 		int nIndex = m_ComboEnetName.GetCurSel();
 		m_NI->SetAdapterNumber(nIndex);

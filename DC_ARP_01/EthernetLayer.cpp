@@ -32,7 +32,7 @@ void CEthernetLayer::ResetHeader()
 	memset( m_sHeader.enet_dstaddr.addrs, 0, 6 ) ;
 	memset( m_sHeader.enet_srcaddr.addrs, 0, 6 ) ;
 	memset( m_sHeader.enet_data, 0, ETHER_MAX_DATA_SIZE ) ;
-	m_sHeader.enet_type = 0x0608 ; // 0x0800
+	m_sHeader.enet_type = 0x0008 ; // 0x0800
 }
 
 unsigned char* CEthernetLayer::GetEnetDstAddress() 
@@ -78,7 +78,7 @@ BOOL CEthernetLayer::Receive( unsigned char* ppayload )
 		if ( memcmp((char *)pFrame->enet_dstaddr.S_un.s_ether_addr,(char *)m_sHeader.enet_srcaddr.S_un.s_ether_addr,6) == 0 ||
 			 memcmp((char *)pFrame->enet_dstaddr.S_un.s_ether_addr,BROADCAST_ADDR, 6) == 0)
 		{
-			if(ntohs(pFrame->enet_type) == 0x0806)
+			if(ntohs(pFrame->enet_type) == ntohs(m_sHeader.enet_type))
 			{
 				bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*) pFrame->enet_data);
 			}

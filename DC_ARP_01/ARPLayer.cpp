@@ -19,11 +19,11 @@ void CARPLayer::ResetHeader()
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
-	memset(arpHeader.arpSenderHardwareAddress, 0, 12);
+	memset(arpHeader.arpSenderHardwareAddress, 0, 6);
 	memset(arpHeader.arpSenderIPAddress, 0, 4);
-	memset(arpHeader.arpTargetHardwareAddress, 0, 12);
+	memset(arpHeader.arpTargetHardwareAddress, 0, 6);
 	memset(arpHeader.arpTargetIPAddress, 0, 4);
-	memset(ownMACAddress, 0, 12);
+	memset(ownMACAddress, 0, 6);
 	memset(ownIPAddress, 0, 4);
 }
 
@@ -45,8 +45,8 @@ void CARPLayer::setSenderIPAddress(unsigned char* senderIP)
 
 void CARPLayer::setSenderHardwareAddress(unsigned char* senderHard)
 {
-	memcpy(arpHeader.arpSenderHardwareAddress, senderHard, 12);
-	memcpy(ownMACAddress, senderHard, 12);
+	memcpy(arpHeader.arpSenderHardwareAddress, senderHard, 6);
+	memcpy(ownMACAddress, senderHard, 6);
 }
 
 
@@ -61,7 +61,7 @@ void CARPLayer::setTargetIPAddress(unsigned char* targetIP)
 
 void CARPLayer::setTargetHardwareAddress(unsigned char* targetHard)
 {
-	memcpy(arpHeader.arpTargetHardwareAddress, targetHard, 12);
+	memcpy(arpHeader.arpTargetHardwareAddress, targetHard, 6);
 }
 
 list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
@@ -105,7 +105,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	
 	ARP_CACHE_RECORD newRecord;
 	newRecord.arpInterface = this->adapter;
-	memset(newRecord.ethernetAddress, 0, 12);
+	memset(newRecord.ethernetAddress, 0, 6);
 	memcpy(newRecord.ipAddress, targetIPAddress, 4);
 	newRecord.isComplete = FALSE;
 
@@ -138,7 +138,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
-				memcpy((*arpIter).ethernetAddress, ownMACAddress, 12);
+				memcpy((*arpIter).ethernetAddress, ownMACAddress, 6);
 				break;
 			}
 		}
@@ -158,15 +158,15 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		
 			unsigned char* tempHardwareAddress = NULL;
 			unsigned char* tempIPAddress = NULL;
-			memset(tempHardwareAddress, 0, 12);
+			memset(tempHardwareAddress, 0, 6);
 			memset(tempIPAddress, 0, 4);
 
-			memcpy(tempHardwareAddress, arpHeader.arpSenderHardwareAddress, 12);
+			memcpy(tempHardwareAddress, arpHeader.arpSenderHardwareAddress, 6);
 			memcpy(tempIPAddress, arpHeader.arpSenderIPAddress, 4);
 			
-			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 12);
+			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 6);
 			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
-			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 12);
+			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 		
 			arpHeader.arpOperationType = 0x2;

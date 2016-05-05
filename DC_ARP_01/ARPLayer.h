@@ -30,9 +30,9 @@ public:
 		unsigned char arpHardwareAddrSize;
 		unsigned char arpProtocolAddrSize;
 		unsigned short arpOperationType;
-		unsigned char arpSenderHardwareAddress[12];
+		unsigned char arpSenderHardwareAddress[6];
 		unsigned char arpSenderIPAddress[4];
-		unsigned char arpTargetHardwareAddress[12];
+		unsigned char arpTargetHardwareAddress[6];
 		unsigned char arpTargetIPAddress[4];
 		unsigned char arpData[ARP_DATA_SIZE];
 
@@ -42,7 +42,7 @@ public:
 	{
 		CString arpInterface;
 		unsigned char ipAddress[4];
-		unsigned char ethernetAddress[12];
+		unsigned char ethernetAddress[6];
 		BOOL isComplete;
 	} ARP_CACHE_RECORD, *PARP_CACHE_RECORD;
 
@@ -63,7 +63,7 @@ public:
 protected:
 	ARP_HEADER arpHeader;
 	CString adapter;
-	unsigned char ownMACAddress[12];
+	unsigned char ownMACAddress[6];
 	unsigned char ownIPAddress[4];
 	unsigned char targetIPAddress[4];
 };
