@@ -45,5 +45,8 @@ BOOL CApplicationLayer::Send(unsigned char* ppayload, int nlength)
 BOOL CApplicationLayer::Receive(unsigned char* ppayload)
 {
 	BOOL bSuccess = TRUE;
+	PAPP_HEADER pHeader = (PAPP_HEADER)ppayload;	
+	bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pHeader->app_data);
+	
 	return bSuccess;
 }

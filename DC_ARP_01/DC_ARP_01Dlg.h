@@ -62,6 +62,9 @@ public:
 	afx_msg void OnBnClickedArpSendButton();
 	afx_msg void OnBnClickedWindowOkButton();
 	afx_msg void OnBnClickedGratuitousSendButton();
+	CString getCompleteString(BOOL isComplete);
+	CString getInterfaceString(LPADAPTER adapter);
+	CString getMACAddressString(unsigned char* macAddress);
 	
 	BOOL			Receive( unsigned char* ppayload );
 

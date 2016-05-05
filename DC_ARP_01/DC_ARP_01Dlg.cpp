@@ -6,6 +6,7 @@
 #include "DC_ARP_01.h"
 #include "DC_ARP_01Dlg.h"
 #include "afxdialogex.h"
+#include "ARPLayer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -132,6 +133,7 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
+	SetTimer(2, 2000, NULL);
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
 
@@ -204,9 +206,9 @@ void CDC_ARP_01Dlg::OnSendMessage()
 
 	SetTimer(1,3000,NULL);
 	m_ARP->setTargetIPAddress((unsigned char*)dstIPAddrString);
-
+	
 	SendData( ) ;
-
+	
 	UpdateData( FALSE ) ;
 }
 void CDC_ARP_01Dlg::OnButtonAddrSet() 
@@ -402,6 +404,8 @@ void CDC_ARP_01Dlg::OnComboEnetAddr()
 	OidData->Length = 6;
 
 	LPADAPTER adapter = PacketOpenAdapter(m_NI->GetAdapterObject(nIndex)->name);
+	m_ARP->setAdapter(adapter);
+	
 	PacketRequest(adapter, FALSE, OidData);
 
 	m_unSrcEnetAddr.Format("%.2X%.2X%.2X%.2X%.2X%.2X",OidData->Data[0],OidData->Data[1],OidData->Data[2],OidData->Data[3],OidData->Data[4],OidData->Data[5]) ;
@@ -422,14 +426,63 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 {
 	if (nIDEvent == 1)
 	{
+		KillTimer( 1 ) ;
 	}
 	else if(nIDEvent == 2)
 	{
+		m_ArpTable.ResetContent();
+		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); cacheIter++)
+		{
+			CString record;
+			record.Append(getInterfaceString((*cacheIter).arpInterface));
+			CString ipAddress;
+			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
+									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
+			record.Append(ipAddress);
+			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
+			record.Append(CString((*cacheIter).ethernetAddress));
+			record.Append(getCompleteString((*cacheIter).isComplete));
+			m_ArpTable.AddString(record.GetString());
+		}
+		m_ArpTable.UpdateData(TRUE);
+		KillTimer(1);
 	}
 	
-	KillTimer( 1 ) ;
 
 	CDialog::OnTimer(nIDEvent);
+}
+
+CString CDC_ARP_01Dlg::getCompleteString(BOOL isComplete)
+{
+	if(isComplete == TRUE)
+		return CString("Complete");
+	else
+		return CString("Incomplete");
+}
+
+
+CString CDC_ARP_01Dlg::getInterfaceString(LPADAPTER adapter)
+{
+	return CString(adapter->Name);
+}
+
+CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
+{
+	if((macAddress[0] == 0) && (macAddress[1] == 0) &&
+		(macAddress[2] == 0) && (macAddress[9] == 0) && 
+		(macAddress[10] == 0) && (macAddress[11] == 0))
+		return CString("??:??:??:??:??:??");
+	else
+	{
+		CString returnString;
+		returnString.Format(" %x%x:%x%:%x%x:%x%x:%x%x:%x%x ",
+				macAddress[0],macAddress[1],macAddress[2],
+				macAddress[3],macAddress[4],macAddress[5],
+				macAddress[6],macAddress[7],macAddress[8],
+				macAddress[9],macAddress[10],macAddress[11]);
+		return returnString;
+	}
 }
 
 void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
@@ -466,4 +519,5 @@ void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
+
 

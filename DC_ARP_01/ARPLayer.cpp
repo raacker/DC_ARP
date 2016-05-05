@@ -69,6 +69,11 @@ list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
 	return arpCacheTable;
 }
 
+void CARPLayer::setAdapter(LPADAPTER adapter)
+{
+	this->adapter = adapter;
+}
+
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
 	CIPLayer::IPLayer_HEADER ipHeader;
@@ -95,8 +100,17 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	{
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
 	}
-
+	
 	arpHeader.arpOperationType = 0x1;
+	
+	ARP_CACHE_RECORD newRecord;
+	newRecord.arpInterface = this->adapter;
+	memset(newRecord.ethernetAddress, 0, 12);
+	memcpy(newRecord.ipAddress, targetIPAddress, 4);
+	newRecord.isComplete = FALSE;
+
+	arpCacheTable.push_back(newRecord);
+
 	BOOL bSuccess = FALSE ;
 	bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
 

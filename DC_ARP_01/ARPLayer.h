@@ -51,14 +51,16 @@ public:
 	void setSenderHardwareAddress(unsigned char* senderHard);
 	void setTargetIPAddress(unsigned char* targetIP);
 	void setTargetHardwareAddress(unsigned char* targetHard);
+	void setAdapter(LPADAPTER adapter);
 	list<ARP_CACHE_RECORD> getARPCacheTable(void);
 
 	BOOL Send(unsigned char* ppayload, int length);
 	BOOL Receive(unsigned char* ppayload);
 
+	list<ARP_CACHE_RECORD> arpCacheTable;
+
 protected:
 	ARP_HEADER arpHeader;
-	list<ARP_CACHE_RECORD> arpCacheTable;
 	LPADAPTER adapter;
 	unsigned char ownMACAddress[12];
 	unsigned char ownIPAddress[4];
