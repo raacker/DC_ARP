@@ -40,7 +40,7 @@ public:
 
 	typedef struct _ARP_CACHE_RECORD
 	{
-		LPADAPTER arpInterface;
+		CString arpInterface;
 		unsigned char ipAddress[4];
 		unsigned char ethernetAddress[12];
 		BOOL isComplete;
@@ -51,7 +51,8 @@ public:
 	void setSenderHardwareAddress(unsigned char* senderHard);
 	void setTargetIPAddress(unsigned char* targetIP);
 	void setTargetHardwareAddress(unsigned char* targetHard);
-	void setAdapter(LPADAPTER adapter);
+	void setAdapter(CString adapter);
+	void OnTimer(UINT nIDEvent) ;
 	list<ARP_CACHE_RECORD> getARPCacheTable(void);
 
 	BOOL Send(unsigned char* ppayload, int length);
@@ -61,7 +62,7 @@ public:
 
 protected:
 	ARP_HEADER arpHeader;
-	LPADAPTER adapter;
+	CString adapter;
 	unsigned char ownMACAddress[12];
 	unsigned char ownIPAddress[4];
 	unsigned char targetIPAddress[4];

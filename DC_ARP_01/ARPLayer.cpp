@@ -69,7 +69,7 @@ list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
 	return arpCacheTable;
 }
 
-void CARPLayer::setAdapter(LPADAPTER adapter)
+void CARPLayer::setAdapter(CString adapter)
 {
 	this->adapter = adapter;
 }
@@ -151,6 +151,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 				newRecord.isComplete = TRUE;
 
 				arpCacheTable.push_back(newRecord);
+				
 			}
 		
 			unsigned char* tempHardwareAddress = NULL;
@@ -185,3 +186,8 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	}
 }
 
+
+void CARPLayer::OnTimer(UINT nIDEvent) 
+{
+	
+}

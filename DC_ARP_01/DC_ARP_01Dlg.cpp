@@ -404,8 +404,10 @@ void CDC_ARP_01Dlg::OnComboEnetAddr()
 	OidData->Length = 6;
 
 	LPADAPTER adapter = PacketOpenAdapter(m_NI->GetAdapterObject(nIndex)->name);
-	m_ARP->setAdapter(adapter);
-	
+	CString device_description = m_NI->GetAdapterObject(nIndex)->description;
+	device_description.Trim();
+	m_ARP->setAdapter(device_description);
+
 	PacketRequest(adapter, FALSE, OidData);
 
 	m_unSrcEnetAddr.Format("%.2X%.2X%.2X%.2X%.2X%.2X",OidData->Data[0],OidData->Data[1],OidData->Data[2],OidData->Data[3],OidData->Data[4],OidData->Data[5]) ;
@@ -424,18 +426,17 @@ void CDC_ARP_01Dlg::SetRegstryMessage()
 }
 void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent) 
 {
-	if (nIDEvent == 1)
+	switch(nIDEvent)
 	{
+	case 1:
 		KillTimer( 1 ) ;
-	}
-	else if(nIDEvent == 2)
-	{
+	
+	case 2:
 		m_ArpTable.ResetContent();
 		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
 		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); cacheIter++)
 		{
 			CString record;
-			record.Append(getInterfaceString((*cacheIter).arpInterface));
 			CString ipAddress;
 			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
 									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
@@ -446,7 +447,6 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 			m_ArpTable.AddString(record.GetString());
 		}
 		m_ArpTable.UpdateData(TRUE);
-		KillTimer(1);
 	}
 	
 
@@ -456,15 +456,9 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 CString CDC_ARP_01Dlg::getCompleteString(BOOL isComplete)
 {
 	if(isComplete == TRUE)
-		return CString("Complete");
+		return CString(" Complete");
 	else
-		return CString("Incomplete");
-}
-
-
-CString CDC_ARP_01Dlg::getInterfaceString(LPADAPTER adapter)
-{
-	return CString(adapter->Name);
+		return CString(" Incomplete");
 }
 
 CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
@@ -472,7 +466,7 @@ CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
 	if((macAddress[0] == 0) && (macAddress[1] == 0) &&
 		(macAddress[2] == 0) && (macAddress[9] == 0) && 
 		(macAddress[10] == 0) && (macAddress[11] == 0))
-		return CString("??:??:??:??:??:??");
+		return CString(" ??:??:??:??:??:?? ");
 	else
 	{
 		CString returnString;
@@ -500,14 +494,6 @@ void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	m_ArpTable.ResetContent();
 }
-
-
-void CDC_ARP_01Dlg::OnBnClickedArpSendButton()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	SendData();
-}
-
 
 void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
 {
