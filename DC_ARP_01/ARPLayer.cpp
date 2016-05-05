@@ -15,7 +15,7 @@ CARPLayer::~CARPLayer(void)
 void CARPLayer::ResetHeader()
 {
 	arpHeader.arpHardwareType = 0x1;
-	arpHeader.arpProtocolType = 0x3412;
+	arpHeader.arpProtocolType = 0x0008;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
@@ -130,8 +130,8 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	
 	BOOL bSuccess = FALSE ;
 
-	char* receivedARPTargetIPAddress = (char*)pARPFrame->arpTargetIPAddress;
-	char* receivedARPTargetHardwareAddress = (char*)pARPFrame->arpTargetHardwareAddress;
+	unsigned char* receivedARPTargetIPAddress = (unsigned char*)pARPFrame->arpTargetIPAddress;
+	unsigned char* receivedARPTargetHardwareAddress = (unsigned char*)pARPFrame->arpTargetHardwareAddress;
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
