@@ -89,11 +89,11 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 
 	ON_BN_CLICKED(IDC_ARP_ITEM_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton)
 	ON_BN_CLICKED(IDC_ARP_ALL_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton)
-	ON_BN_CLICKED(IDC_ARP_SEND_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpSendButton)
+	ON_BN_CLICKED(IDC_ARP_SEND_BUTTON, OnSendMessage)
 	ON_BN_CLICKED(IDC_WINDOW_OK_BUTTON, &CDC_ARP_01Dlg::OnBnClickedWindowOkButton)
-	ON_BN_CLICKED(IDC_ARP_SETTING_BUTTON, &CDC_ARP_01Dlg::OnBnClickedArpSettingButton)
+	ON_BN_CLICKED(IDC_ARP_SETTING_BUTTON, OnButtonAddrSet)
 	ON_BN_CLICKED(IDC_GRATUITOUS_SEND_BUTTON, &CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton)
-	ON_CBN_SELCHANGE(IDC_NICARD_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeNicardCombo)
+	ON_CBN_SELCHANGE(IDC_NICARD_COMBO, OnComboEnetAddr)
 
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
@@ -203,6 +203,7 @@ void CDC_ARP_01Dlg::OnSendMessage()
 	UpdateData( TRUE ) ;
 
 	SetTimer(1,3000,NULL);
+	m_ARP->setTargetIPAddress((unsigned char*)dstIPAddrString);
 
 	SendData( ) ;
 
@@ -259,18 +260,15 @@ void CDC_ARP_01Dlg::OnButtonAddrSet()
 
 void CDC_ARP_01Dlg::SendData()
 {
-	CString MsgHeader ; 
-	if ( m_unDstEnetAddr == (unsigned int)0xff )
-		MsgHeader.Format( "[%s:BROADCAST] ", m_unSrcEnetAddr ) ;
-	else
-		MsgHeader.Format( "[%s:%s] ", m_unSrcEnetAddr, m_unDstEnetAddr ) ;
-	MsgHeader.Format();
-
+	m_stMessage.SetString("Hello World!");
 	int nlength = m_stMessage.GetLength();
 	unsigned char* ppayload = new unsigned char[nlength+1];
 	memcpy(ppayload,(unsigned char*)(LPCTSTR)m_stMessage,nlength);
 	ppayload[nlength] = '\0';
-
+	
+	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
+	m_ARP->setSenderHardwareAddress((unsigned char*)m_unSrcEnetAddr.GetString());
+	
 	m_APP->Send(ppayload,m_stMessage.GetLength());
 }
 
@@ -284,12 +282,8 @@ BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
 	memcpy(GetBuff,ppayload,len_ppayload);
 	GetBuff[len_ppayload] = '\0';
 	
-	if( m_unSrcEnetAddr == (unsigned int)0xff )
-		Msg.Format("[%s:BROADCAST] %s",m_unDstEnetAddr,(char *)GetBuff);
-	else
-		Msg.Format("[%s:%s] %s",m_unDstEnetAddr,m_unSrcEnetAddr,(char *)GetBuff);
-
 	KillTimer(1);
+	
 	return TRUE ;
 }
 
@@ -319,55 +313,57 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 	switch( state )
 	{
 	case IPC_INITIALIZING : // 첫 화면 세팅
-		pARPAllDeleteButton->EnableWindow( FALSE ) ;
-		pARPItemDeleteButton->EnableWindow( FALSE ) ;
-		pWindowOkButton->EnableWindow( FALSE );
+		pWindowOkButton->EnableWindow( TRUE );
 		pARPSendButton->EnableWindow( FALSE );
-		pProxyDeleteButton->EnableWindow( FALSE );
-		pProxyAddButton->EnableWindow( FALSE );
-		pGratuitousSendButton->EnableWindow( FALSE );
-		pARPSettingButton->EnableWindow( FALSE );
-		pARPSendIP->EnableWindow( FALSE );
-		pOWNIPAddress->EnableWindow( FALSE );
-		pGratuitousARPAddress->EnableWindow ( FALSE );
+		pGratuitousSendButton->EnableWindow( TRUE );
+		pARPSettingButton->EnableWindow( TRUE );
+		pARPSendIP->EnableWindow( TRUE );
+		pOWNIPAddress->EnableWindow( TRUE );
+		pGratuitousARPAddress->EnableWindow ( TRUE );
 		m_proxyARPEntry.EnableWindow( FALSE );
 		m_ArpTable.EnableWindow( FALSE ) ;
 		break ;
-	case IPC_READYTOSEND : // Send(S)버튼을 눌렀을 때 세팅
-		pARPAllDeleteButton->EnableWindow( TRUE ) ;
-		pARPItemDeleteButton->EnableWindow( TRUE ) ;
-		pWindowOkButton->EnableWindow( TRUE );
+
+	case IPC_READYTOSEND : // Send 버튼을 눌렀을 때 세팅
 		pARPSendButton->EnableWindow( TRUE );
-		pProxyDeleteButton->EnableWindow( TRUE );
-		pProxyAddButton->EnableWindow( TRUE );
 		pGratuitousSendButton->EnableWindow( TRUE );
 		pARPSettingButton->EnableWindow( TRUE );
 		pARPSendIP->EnableWindow( TRUE );
 		pOWNIPAddress->EnableWindow( TRUE );
 		pGratuitousARPAddress->EnableWindow ( TRUE );
 		m_proxyARPEntry.EnableWindow( TRUE );
+
+		DWORD dwIP;
+		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
+
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
+
 	case IPC_WAITFORACK :	break ;
 	case IPC_ERROR :		break ;
 	case IPC_ADDR_SET :	// Setting 버튼을 눌렀을 때
+		
 		pARPSettingButton->SetWindowText( "Reset" ) ; 
 		pARPSendIP->EnableWindow( FALSE ) ;
-		pOWNIPAddress->EnableWindow( FALSE ) ;
 		pEnetNameCombo->EnableWindow( FALSE );
+		pARPSendButton->EnableWindow( TRUE );
+
+		pOWNIPAddress->GetAddress(srcIPAddrString[0],srcIPAddrString[1],srcIPAddrString[2],srcIPAddrString[3]) ;
+
+		pOWNIPAddress->EnableWindow( FALSE ) ;
 		m_NI->m_thrdSwitch = TRUE;
-		break ;
+		break;
+		
 	case IPC_ADDR_RESET : // Reset 버튼을 눌렀을 때
+		
 		pARPSettingButton->SetWindowText( "Setting" ) ; 
-		pSrcEdit->EnableWindow( TRUE ) ;
-		if ( !pChkButton->GetCheck( ) )
-			pDstEdit->EnableWindow( TRUE ) ;
-		pChkButton->EnableWindow( TRUE ) ;
-		pSrcIPEdit->EnableWindow( TRUE );
-		pDstIPEdit->EnableWindow( TRUE );
+		pARPSendIP->EnableWindow( TRUE ) ;
+		pOWNIPAddress->EnableWindow( TRUE ) ;
 		pEnetNameCombo->EnableWindow( TRUE );
+		pARPSendButton->EnableWindow( FALSE );
 		m_NI->m_thrdSwitch = FALSE;
 		break ;
+		
 	case CFT_COMBO_SET :
 		for(i=0;i<NI_COUNT_NIC;i++){
 			if(!m_NI->GetAdapterObject(i))
@@ -392,6 +388,50 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 
 	UpdateData( FALSE ) ;
 }
+
+void CDC_ARP_01Dlg::OnComboEnetAddr()
+{
+	UpdateData(TRUE);
+
+	int nIndex = m_ComboEnetName.GetCurSel();
+	m_NI->GetAdapterObject(nIndex)->name;
+
+	PPACKET_OID_DATA OidData;
+	OidData = (PPACKET_OID_DATA)malloc(sizeof(PACKET_OID_DATA));
+	OidData->Oid = 0x01010101;
+	OidData->Length = 6;
+
+	LPADAPTER adapter = PacketOpenAdapter(m_NI->GetAdapterObject(nIndex)->name);
+	PacketRequest(adapter, FALSE, OidData);
+
+	m_unSrcEnetAddr.Format("%.2X%.2X%.2X%.2X%.2X%.2X",OidData->Data[0],OidData->Data[1],OidData->Data[2],OidData->Data[3],OidData->Data[4],OidData->Data[5]) ;
+
+	UpdateData(FALSE);
+}
+
+void CDC_ARP_01Dlg::EndofProcess()
+{
+	m_LayerMgr.DeAllocLayer( ) ;
+}
+
+void CDC_ARP_01Dlg::SetRegstryMessage()
+{
+
+}
+void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent) 
+{
+	if (nIDEvent == 1)
+	{
+	}
+	else if(nIDEvent == 2)
+	{
+	}
+	
+	KillTimer( 1 ) ;
+
+	CDialog::OnTimer(nIDEvent);
+}
+
 void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -422,20 +462,8 @@ void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
 	AfxGetMainWnd()->PostMessage(WM_COMMAND,ID_APP_EXIT,0);
 }
 
-
-void CDC_ARP_01Dlg::OnBnClickedArpSettingButton()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}
-
-
 void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
-
-void CDC_ARP_01Dlg::OnCbnSelchangeNicardCombo()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}

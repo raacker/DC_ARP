@@ -31,6 +31,8 @@ public:
 	CString				m_unDstEnetAddr;
 	CIPAddressCtrl		m_unDstIPAddr;
 	CIPAddressCtrl		m_unSrcIPAddr;
+	unsigned char		srcIPAddrString[4];
+	unsigned char		dstIPAddrString[4];
 	CString				m_stMessage;
 
 	protected:
@@ -59,10 +61,10 @@ public:
 	afx_msg void OnBnClickedArpAllDeleteButton();
 	afx_msg void OnBnClickedArpSendButton();
 	afx_msg void OnBnClickedWindowOkButton();
-	afx_msg void OnBnClickedArpSettingButton();
 	afx_msg void OnBnClickedGratuitousSendButton();
-	afx_msg void OnCbnSelchangeNicardCombo();
+	
 	BOOL			Receive( unsigned char* ppayload );
+
 	inline void		SendData( );
 
 private:
@@ -74,12 +76,11 @@ private:
 					IPC_ERROR,
 					IPC_ADDR_SET,
 					IPC_ADDR_RESET,
-					CFT_COMBO_SET } ;
+					CFT_COMBO_SET} ;
 	
 	void			SetDlgState( int state );
 	inline void		EndofProcess( );
-	inline void		SetRegstryMessage( );
-	
+	inline void		SetRegstryMessage();
 	BOOL			m_bSendReady;
 
 	CApplicationLayer* m_APP;
