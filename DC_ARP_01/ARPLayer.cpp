@@ -2,7 +2,7 @@
 #include "ARPLayer.h"
 
 CARPLayer::CARPLayer(char* pName)
-: CBaseLayer( pName )
+: CBaseLayer( pName ), ARP_REQUEST(0x0100), ARP_REPLY(0x0200)
 {
 	ResetHeader();
 }
@@ -107,7 +107,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
-	arpHeader.arpOperationType = 0x1;
+	arpHeader.arpOperationType = ARP_REQUEST;
 	
 	ARP_CACHE_RECORD newRecord;
 	newRecord.arpInterface = this->adapter;
@@ -148,7 +148,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 				break;
 			}
 		}
-		if(pARPFrame->arpOperationType == 0x1)
+		if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REQUEST))
 		{
 			if(isARPRecordExist == FALSE)
 			{
@@ -175,7 +175,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 		
-			arpHeader.arpOperationType = 0x2;
+			arpHeader.arpOperationType = ARP_REPLY;
 		
 			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
 			((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
@@ -184,8 +184,6 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, sizeof(ppayload));
 		}
 		return bSuccess;
-		// ARP reply 헤더 만들기!!!!!!!!!!!!!!!!!!
-		// char* 캐스팅 하는 부분들이 존재할 꺼 같다.
 	}
 	else
 	{
