@@ -13,8 +13,8 @@ public:
 	unsigned char	*m_ppayload;
 	int				m_length;
 
-	BOOL			Receive( unsigned char* ppayload );
-	BOOL			Send( unsigned char*, int );
+	BOOL Send(unsigned char* ppayload, int nlength);
+	BOOL Receive(unsigned char* ppayload);
 
 	CApplicationLayer( char* pName );
 	virtual ~CApplicationLayer();
