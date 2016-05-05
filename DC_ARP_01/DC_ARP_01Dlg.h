@@ -27,10 +27,11 @@ public:
 	CEdit				m_unGratuitousAddresss;
 	CListBox			m_proxyARPEntry;
 
-	CString m_unSrcEnetAddr;
-	CString m_unDstEnetAddr;
+	CString				m_unSrcEnetAddr;
+	CString				m_unDstEnetAddr;
 	CIPAddressCtrl		m_unDstIPAddr;
 	CIPAddressCtrl		m_unSrcIPAddr;
+	CString				m_stMessage;
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
@@ -61,6 +62,8 @@ public:
 	afx_msg void OnBnClickedArpSettingButton();
 	afx_msg void OnBnClickedGratuitousSendButton();
 	afx_msg void OnCbnSelchangeNicardCombo();
+	BOOL			Receive( unsigned char* ppayload );
+	inline void		SendData( );
 
 private:
 	CLayerManager	m_LayerMgr;

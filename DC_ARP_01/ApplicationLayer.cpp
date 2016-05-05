@@ -26,8 +26,6 @@ void CApplicationLayer::ResetHeader( )
 	memset( m_sHeader.app_data, 0, APP_DATA_SIZE ) ;
 }
 
-
-
 BOOL CApplicationLayer::Send(unsigned char* ppayload, int nlength)
 {
 	BOOL bSuccess = TRUE;

@@ -264,17 +264,14 @@ void CDC_ARP_01Dlg::SendData()
 		MsgHeader.Format( "[%s:BROADCAST] ", m_unSrcEnetAddr ) ;
 	else
 		MsgHeader.Format( "[%s:%s] ", m_unSrcEnetAddr, m_unDstEnetAddr ) ;
-
-	m_ListChat.AddString( MsgHeader + m_stMessage ) ;
+	MsgHeader.Format();
 
 	int nlength = m_stMessage.GetLength();
 	unsigned char* ppayload = new unsigned char[nlength+1];
 	memcpy(ppayload,(unsigned char*)(LPCTSTR)m_stMessage,nlength);
 	ppayload[nlength] = '\0';
 
-	m_TCP->SetDestinPort(TCP_PORT_CHAT);
-
-	m_ChatApp->Send(ppayload,m_stMessage.GetLength());
+	m_APP->Send(ppayload,m_stMessage.GetLength());
 }
 
 BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
@@ -293,7 +290,6 @@ BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
 		Msg.Format("[%s:%s] %s",m_unDstEnetAddr,m_unSrcEnetAddr,(char *)GetBuff);
 
 	KillTimer(1);
-	m_ListChat.AddString( (char*) Msg.GetBuffer(0) ) ;
 	return TRUE ;
 }
 
@@ -416,7 +412,7 @@ void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
 void CDC_ARP_01Dlg::OnBnClickedArpSendButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
+	SendData();
 }
 
 
