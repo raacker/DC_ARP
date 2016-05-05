@@ -131,7 +131,8 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	BOOL bSuccess = FALSE ;
 
 	unsigned char* receivedARPTargetIPAddress = (unsigned char*)pARPFrame->arpTargetIPAddress;
-	unsigned char* receivedARPTargetHardwareAddress = (unsigned char*)pARPFrame->arpTargetHardwareAddress;
+	unsigned char* receivedARPSenderIPAddress = (unsigned char*)pARPFrame->arpSenderIPAddress;
+	unsigned char* receivedARPSenderHardwareAddress = (unsigned char*)pARPFrame->arpSenderHardwareAddress;
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
@@ -154,22 +155,23 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			{
 				ARP_CACHE_RECORD newRecord;
 				newRecord.arpInterface = adapter;
-				memcpy(newRecord.ethernetAddress, receivedARPTargetHardwareAddress, 12);
-				memcpy(newRecord.ipAddress, receivedARPTargetIPAddress, 4);
+				memcpy(newRecord.ethernetAddress, receivedARPSenderHardwareAddress, 6);
+				memcpy(newRecord.ipAddress, receivedARPSenderIPAddress, 4);
 				newRecord.isComplete = TRUE;
 
 				arpCacheTable.push_back(newRecord);
 				
 			}
 		
-			unsigned char* tempHardwareAddress = NULL;
-			unsigned char* tempIPAddress = NULL;
+			unsigned char tempHardwareAddress[6];
+			unsigned char tempIPAddress[4];
 			memset(tempHardwareAddress, 0, 6);
 			memset(tempIPAddress, 0, 4);
 
 			memcpy(tempHardwareAddress, arpHeader.arpSenderHardwareAddress, 6);
 			memcpy(tempIPAddress, arpHeader.arpSenderIPAddress, 4);
-			
+			memcpy(arpHeader.arpTargetHardwareAddress, ownMACAddress, 6);
+
 			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 6);
 			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
