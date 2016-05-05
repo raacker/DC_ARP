@@ -51,6 +51,7 @@ public:
 	void setSenderHardwareAddress(unsigned char* senderHard);
 	void setTargetIPAddress(unsigned char* targetIP);
 	void setTargetHardwareAddress(unsigned char* targetHard);
+	list<ARP_CACHE_RECORD> getARPCacheTable(void);
 
 	BOOL Send(unsigned char* ppayload, int length);
 	BOOL Receive(unsigned char* ppayload);

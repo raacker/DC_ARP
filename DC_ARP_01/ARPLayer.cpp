@@ -55,6 +55,10 @@ void CARPLayer::setTargetHardwareAddress(unsigned char* targetHard)
 	memcpy(arpHeader.arpTargetHardwareAddress, targetHard, 6);
 }
 
+list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
+{
+	return arpCacheTable;
+}
 
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
@@ -111,22 +115,50 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
-				memcpy((*arpIter).ethernetAddress,ownMACAddress, 6);
+				memcpy((*arpIter).ethernetAddress, ownMACAddress, 6);
 				break;
 			}
 		}
-
-		if(isARPRecordExist == FALSE)
+		if(pARPFrame->arpOperationType == 0x1)
 		{
-			ARP_CACHE_RECORD newRecord;
-			newRecord.arpInterface = adapter;
-			memcpy(newRecord.ethernetAddress, receivedARPTargetHardwareAddress, 6);
-			memcpy(newRecord.ipAddress, receivedARPTargetIPAddress, 4);
-			newRecord.isComplete = TRUE;
+			if(isARPRecordExist == FALSE)
+			{
+				ARP_CACHE_RECORD newRecord;
+				newRecord.arpInterface = adapter;
+				memcpy(newRecord.ethernetAddress, receivedARPTargetHardwareAddress, 6);
+				memcpy(newRecord.ipAddress, receivedARPTargetIPAddress, 4);
+				newRecord.isComplete = TRUE;
 
-			arpCacheTable.push_back(newRecord);
+				arpCacheTable.push_back(newRecord);
+			}
+		
+			unsigned char* tempHardwareAddress;
+			unsigned char* tempIPAddress;
+
+			memcpy(tempHardwareAddress, arpHeader.arpSenderHardwareAddress, 6);
+			memcpy(tempIPAddress, arpHeader.arpSenderIPAddress, 4);
+			
+			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 6);
+			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
+			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
+			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
+		
+			arpHeader.arpOperationType = 0x2;
+		
+			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
+			((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
+			BOOL bSuccess = FALSE;
+
+			bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
+			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, sizeof(ppayload));
 		}
 
 		// ARP reply 헤더 만들기!!!!!!!!!!!!!!!!!!
+		// char* 캐스팅 하는 부분들이 존재할 꺼 같다.
+	}
+	else
+	{
+		//discard this message.
 	}
 }
+
