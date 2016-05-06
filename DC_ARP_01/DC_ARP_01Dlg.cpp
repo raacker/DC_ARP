@@ -558,13 +558,11 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
 	
-	m_ARP->setSenderHardwareAddress((unsigned char*)m_unGratuitousAddressstes.GetString());
-	m_ARP->setTargetHardwareAddress((unsigned char*)m_unDstEnetAddr.GetString());
+	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
 	
 	
 	m_APP->Send(ppayload,m_stMessage.GetLength());
 }
-
 
 void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 {
