@@ -560,7 +560,9 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_IP->SetDstIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
-	
+
+	m_ETH->SetEnetSrcAddress(src_mac);
+
 	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
 	
 	
