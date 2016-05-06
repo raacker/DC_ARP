@@ -19,11 +19,11 @@ void CARPLayer::ResetHeader()
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
-	memset(arpHeader.arpSenderHardwareAddress, 0x0, 6);
+	memset(arpHeader.arpSenderHardwareAddress, 0, 6);
 	memset(arpHeader.arpSenderIPAddress, 0, 4);
-	memset(arpHeader.arpTargetHardwareAddress, 0x0, 6);
+	memset(arpHeader.arpTargetHardwareAddress, 0, 6);
 	memset(arpHeader.arpTargetIPAddress, 0, 4);
-	memset(ownMACAddress, 0x0, 6);
+	memset(ownMACAddress, 0, 6);
 	memset(ownIPAddress, 0, 4);
 }
 
@@ -45,8 +45,8 @@ void CARPLayer::setSenderIPAddress(unsigned char* senderIP)
 
 void CARPLayer::setSenderHardwareAddress(unsigned char* senderHard)
 {
-	setMACAddress(arpHeader.arpSenderHardwareAddress, senderHard);
-	setMACAddress(ownMACAddress, senderHard);
+	memcpy(arpHeader.arpSenderHardwareAddress, senderHard, 6);
+	memcpy(ownMACAddress, senderHard, 6);
 }
 
 
@@ -61,7 +61,7 @@ void CARPLayer::setTargetIPAddress(unsigned char* targetIP)
 
 void CARPLayer::setTargetHardwareAddress(unsigned char* targetHard)
 {
-	setMACAddress(arpHeader.arpTargetHardwareAddress, targetHard);
+	memcpy(arpHeader.arpTargetHardwareAddress, targetHard, 6);
 }
 
 list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
@@ -109,7 +109,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = ARP_REQUEST;
-	setMACAddress(arpHeader.arpSenderHardwareAddress, ownMACAddress);
+	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	
@@ -150,7 +150,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
-				setMACAddress((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress);
+				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
 				(*arpIter).isComplete = TRUE;
 				break;
 			}
@@ -161,7 +161,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			{
 				ARP_CACHE_RECORD newRecord;
 				newRecord.arpInterface = adapter;
-				setMACAddress(newRecord.ethernetAddress, receivedARPSenderHardwareAddress);
+				memcpy(newRecord.ethernetAddress, receivedARPSenderHardwareAddress, 6);
 				memcpy(newRecord.ipAddress, receivedARPSenderIPAddress, 4);
 				newRecord.isComplete = TRUE;
 
@@ -173,11 +173,11 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memset(tempHardwareAddress, 0, 6);
 			memset(tempIPAddress, 0, 4);
 
-			setMACAddress(tempHardwareAddress, receivedARPSenderHardwareAddress);
+			memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
 			memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
 
-			setMACAddress(arpHeader.arpSenderHardwareAddress, ownMACAddress);
-			setMACAddress(arpHeader.arpTargetHardwareAddress, tempHardwareAddress);
+			memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
+			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 			memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 			
@@ -206,14 +206,4 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 void CARPLayer::OnTimer(UINT nIDEvent)
 {
 	
-}
-
-void CARPLayer::setMACAddress(unsigned char* leftAddress, unsigned char* rightAddress)
-{
-	leftAddress[0] = rightAddress[0];
-	leftAddress[1] = rightAddress[1];
-	leftAddress[2] = rightAddress[2];
-	leftAddress[3] = rightAddress[3];
-	leftAddress[4] = rightAddress[4];
-	leftAddress[5] = rightAddress[5];
 }

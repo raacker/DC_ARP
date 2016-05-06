@@ -69,7 +69,5 @@ protected:
 	unsigned char ownMACAddress[6];
 	unsigned char ownIPAddress[4];
 	unsigned char targetIPAddress[4];
-public:
-	void setMACAddress(unsigned char* leftAddress, unsigned char* rightAddress);
 };
 
