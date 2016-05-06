@@ -45,7 +45,7 @@ void CARPLayer::setSenderIPAddress(unsigned char* senderIP)
 
 void CARPLayer::setSenderHardwareAddress(unsigned char* senderHard)
 {
-	memcpy(arpHeader.arpSenderHardwareAddress, senderHard, 6);
+	memcpy(&arpHeader.arpSenderHardwareAddress, senderHard, 6);
 	memcpy(ownMACAddress, senderHard, 6);
 }
 
@@ -61,7 +61,7 @@ void CARPLayer::setTargetIPAddress(unsigned char* targetIP)
 
 void CARPLayer::setTargetHardwareAddress(unsigned char* targetHard)
 {
-	memcpy(arpHeader.arpTargetHardwareAddress, targetHard, 6);
+	memcpy(&arpHeader.arpTargetHardwareAddress, targetHard, 6);
 }
 
 list<CARPLayer::ARP_CACHE_RECORD> CARPLayer::getARPCacheTable(void)
