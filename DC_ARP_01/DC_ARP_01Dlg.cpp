@@ -7,6 +7,7 @@
 #include "DC_ARP_01Dlg.h"
 #include "afxdialogex.h"
 #include "ARPLayer.h"
+#include <vector>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -447,10 +448,10 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 			CString ipAddress;
 			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
 									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
-			record.Append(ipAddress);
-			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
-			record.Append(CString((*cacheIter).ethernetAddress));
-			record.Append(getCompleteString((*cacheIter).isComplete));
+			//ipAddress.Replace(_T(" "),NULL);
+			record.Append(ipAddress+"/");
+			record.Append(getMACAddressString((*cacheIter).ethernetAddress).Trim()+" ");
+			record.Append(getCompleteString((*cacheIter).isComplete).Trim()+" ");
 			m_ArpTable.AddString(record.GetString());
 		}
 		m_ArpTable.UpdateData(TRUE);
@@ -477,12 +478,10 @@ CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
 	else
 	{
 		CString returnString;
-		returnString.Format(" %x%x:%x%:%x%x:%x%x:%x%x:%x%x ",
+		returnString.Format(" %2X:%2X:%2X:%2X:%2X:%2X ",
 				macAddress[0],macAddress[1],macAddress[2],
-				macAddress[3],macAddress[4],macAddress[5],
-				macAddress[6],macAddress[7],macAddress[8],
-				macAddress[9],macAddress[10],macAddress[11]);
-		return returnString;
+				macAddress[3],macAddress[4],macAddress[5]);
+		return returnString.GetString();
 	}
 }
 
@@ -491,7 +490,10 @@ void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int index = m_ArpTable.GetCurSel();
 	if(index != LB_ERR) {
-		m_ArpTable.DeleteString(index);
+		
+		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+		cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
+				
 	}
 }
 
@@ -560,8 +562,7 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
 	
-	m_ARP->setSenderHardwareAddress((unsigned char*)m_unGratuitousAddressstes.GetString());
-	m_ARP->setTargetHardwareAddress((unsigned char*)m_unDstEnetAddr.GetString());
+	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
 	
 	
 	m_APP->Send(ppayload,m_stMessage.GetLength());
