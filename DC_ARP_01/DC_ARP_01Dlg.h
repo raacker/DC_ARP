@@ -92,4 +92,6 @@ private:
 
 	UINT			m_wParam;
 	DWORD			m_lParam;
+public:
+	afx_msg void OnEnChangeGratuitousAddressBox();
 };

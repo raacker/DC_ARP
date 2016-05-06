@@ -60,6 +60,7 @@ public:
 
 	BOOL Send(unsigned char* ppayload, int length);
 	BOOL Receive(unsigned char* ppayload);
+	
 
 	list<ARP_CACHE_RECORD> arpCacheTable;
 
