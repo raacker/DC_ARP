@@ -15,7 +15,7 @@ CARPLayer::~CARPLayer(void)
 void CARPLayer::ResetHeader()
 {
 	arpHeader.arpHardwareType = 0x1;
-	arpHeader.arpProtocolType = 0x0008;
+	arpHeader.arpProtocolType = 0x0608;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
@@ -171,11 +171,10 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 
 			memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
 			memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
-			memcpy(arpHeader.arpTargetHardwareAddress, ownMACAddress, 6);
 
-			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 6);
+			memcpy(arpHeader.arpSenderHardwareAddress, ownIPAddress, 6);
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
-			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
+			memcpy(arpHeader.arpSenderIPAddress, ownMACAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 		
 			arpHeader.arpOperationType = ARP_REPLY;
