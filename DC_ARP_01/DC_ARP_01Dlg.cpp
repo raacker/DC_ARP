@@ -448,10 +448,10 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 			CString ipAddress;
 			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
 									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
-			//ipAddress.Replace(_T(" "),NULL);
-			record.Append(ipAddress+"/");
-			record.Append(getMACAddressString((*cacheIter).ethernetAddress).Trim()+" ");
-			record.Append(getCompleteString((*cacheIter).isComplete).Trim()+" ");
+			
+			record.Append(ipAddress);
+			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
+			record.Append(getCompleteString((*cacheIter).isComplete));
 			m_ArpTable.AddString(record.GetString());
 		}
 		m_ArpTable.UpdateData(TRUE);
