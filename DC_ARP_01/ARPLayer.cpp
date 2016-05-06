@@ -133,10 +133,13 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
 	
 	BOOL bSuccess = FALSE ;
-
-	unsigned char* receivedARPTargetIPAddress = (unsigned char*)pARPFrame->arpTargetIPAddress;
-	unsigned char* receivedARPSenderIPAddress = (unsigned char*)pARPFrame->arpSenderIPAddress;
-	unsigned char* receivedARPSenderHardwareAddress = (unsigned char*)pARPFrame->arpSenderHardwareAddress;
+	
+	unsigned char receivedARPTargetIPAddress[4];
+	unsigned char receivedARPSenderIPAddress[4];
+	unsigned char receivedARPSenderHardwareAddress[6];
+	memcpy(receivedARPTargetIPAddress, (unsigned char*)pARPFrame->arpTargetIPAddress, 4);
+	memcpy(receivedARPSenderIPAddress, (unsigned char*)pARPFrame->arpSenderIPAddress, 4);
+	memcpy(receivedARPSenderHardwareAddress, (unsigned char*)pARPFrame->arpSenderHardwareAddress, 6);
 	
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
