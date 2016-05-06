@@ -76,7 +76,6 @@ void CARPLayer::setAdapter(CString adapter)
 
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
-	CIPLayer::IPLayer_HEADER ipHeader;
 
 	memcpy( arpHeader.arpData, ppayload, length );
 
@@ -132,12 +131,15 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 }
 
 
-BOOL CARPLayer::Receive(unsigned char* ppayload)
-{
+BOOL CARPLayer::Receive(unsigned char* ppayload){
+
 	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
 	
 	BOOL bSuccess = FALSE ;
-	
+	BOOL GratitousOccur = FALSE ;
+
+
+
 	unsigned char receivedARPTargetIPAddress[4];
 	unsigned char receivedARPSenderIPAddress[4];
 	unsigned char receivedARPSenderHardwareAddress[6];
@@ -145,62 +147,73 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	memcpy(receivedARPSenderIPAddress, (unsigned char*)pARPFrame->arpSenderIPAddress, 4);
 	memcpy(receivedARPSenderHardwareAddress, (unsigned char*)pARPFrame->arpSenderHardwareAddress, 6);
 	
-	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) && 
+	BOOL isARPRecordExist = FALSE;
+	list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
+	for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
+	{
+		if(memcmp((*arpIter).ipAddress,receivedARPSenderIPAddress, 4) == 0) //받은 아이피 주소가 있는지 확인.
+		{ // 이미 존재한다면,
+			isARPRecordExist = TRUE;
+			if(memcmp(receivedARPSenderHardwareAddress,(*arpIter).ethernetAddress,6) != 0){//목적지 주소가 이미 있는데 다르다면 갱신해준다.
+				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
+				GratitousOccur = TRUE;
+				char* a = "here1";
+				AfxMessageBox(a);
+			}
+			else if(memcmp(0x0,(*arpIter).ethernetAddress,6) ==0 ){//목적지 주소가 이미 있는데 ??? 로 되있다면,
+				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
+				char* a = "here2";
+				AfxMessageBox(a);
+			}
+			(*arpIter).isComplete = TRUE;
+			break;
+		}
+	}
+
+	if(GratitousOccur == FALSE){
+
+	if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REQUEST))
+	{
+		if(isARPRecordExist == FALSE)
+		{
+			ARP_CACHE_RECORD newRecord;
+			newRecord.arpInterface = adapter;
+			memcpy(newRecord.ethernetAddress, receivedARPSenderHardwareAddress, 6);
+			memcpy(newRecord.ipAddress, receivedARPSenderIPAddress, 4);
+			newRecord.isComplete = TRUE;
+
+			arpCacheTable.push_back(newRecord);
+		}
+	}
+	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&//자신의 아이피 주소와 같을 때.
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
 		 (receivedARPTargetIPAddress[3] == ownIPAddress[3]))
-	{//내 아이피 주소와 같다면...? 헌겸이형 코드 수정중..
-		BOOL isARPRecordExist = FALSE;
-		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
-		for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
-		{
-			if(memcmp((*arpIter).ipAddress,receivedARPSenderIPAddress, 4) == 0)
-			{
-				isARPRecordExist = TRUE;
-				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
-				(*arpIter).isComplete = TRUE;
-				break;
-			}
-		}
-		if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REQUEST))
-		{
-			if(isARPRecordExist == FALSE)
-			{
-				ARP_CACHE_RECORD newRecord;
-				newRecord.arpInterface = adapter;
-				memcpy(newRecord.ethernetAddress, receivedARPSenderHardwareAddress, 6);
-				memcpy(newRecord.ipAddress, receivedARPSenderIPAddress, 4);
-				newRecord.isComplete = TRUE;
+	{
+		unsigned char tempHardwareAddress[6];
+		unsigned char tempIPAddress[4];
+		memset(tempHardwareAddress, 0, 6);
+		memset(tempIPAddress, 0, 4);
 
-				arpCacheTable.push_back(newRecord);
-			}
+		memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
+		memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
+
+		memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
+		memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
+		memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
+		memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
+		arpHeader.arpHardwareType = 0x0100;
+		arpHeader.arpProtocolType = 0x0008;
+		arpHeader.arpHardwareAddrSize = 0x6;
+		arpHeader.arpProtocolAddrSize = 0x4;
+		arpHeader.arpOperationType = ARP_REPLY;
+		memset(arpHeader.arpData, 0, 1);
+
+		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
+		((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
 		
-			unsigned char tempHardwareAddress[6];
-			unsigned char tempIPAddress[4];
-			memset(tempHardwareAddress, 0, 6);
-			memset(tempIPAddress, 0, 4);
-
-			memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
-			memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
-
-			memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
-			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
-			memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
-			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
-			
-			arpHeader.arpHardwareType = 0x0100;
-			arpHeader.arpProtocolType = 0x0008;
-			arpHeader.arpHardwareAddrSize = 0x6;
-			arpHeader.arpProtocolAddrSize = 0x4;
-			arpHeader.arpOperationType = ARP_REPLY;
-			memset(arpHeader.arpData, 0, 1);
-
-			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
-			((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
-		
-			bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
-			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, ARP_HEADER_SIZE);
-		}
+		bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
+		bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, ARP_HEADER_SIZE);
 		return bSuccess;
 	}
 	else
@@ -208,6 +221,12 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		//discard this message.
 		return bSuccess;
 	}
+	}
+	else{
+		bSuccess = TRUE;
+		return bSuccess;
+	}
+
 }
 
 void CARPLayer::OnTimer(UINT nIDEvent)
