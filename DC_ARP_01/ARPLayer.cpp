@@ -146,7 +146,8 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
-				memcpy((*arpIter).ethernetAddress, ownMACAddress, 6);
+				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
+				(*arpIter).isComplete = TRUE;
 				break;
 			}
 		}
@@ -161,7 +162,6 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 				newRecord.isComplete = TRUE;
 
 				arpCacheTable.push_back(newRecord);
-				
 			}
 		
 			unsigned char tempHardwareAddress[6];
@@ -178,7 +178,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 			
 			arpHeader.arpHardwareType = 0x1;
-			arpHeader.arpProtocolType = 0x0608;
+			arpHeader.arpProtocolType = 0x0008;
 			arpHeader.arpHardwareAddrSize = 0x6;
 			arpHeader.arpProtocolAddrSize = 0x4;
 			arpHeader.arpOperationType = ARP_REPLY;
