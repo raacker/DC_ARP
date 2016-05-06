@@ -102,6 +102,10 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_NOTIFY(IPN_FIELDCHANGED, IDC_ARP_SEND_IP, &CDC_ARP_01Dlg::OnIpnFieldchangedArpSendIp)
 	ON_NOTIFY(IPN_FIELDCHANGED, IDC_OWN_IP_ADDRESS, &CDC_ARP_01Dlg::OnIpnFieldchangedOwnIpAddress)
 	ON_EN_CHANGE(IDC_GRATUITOUS_ADDRESS_BOX, &CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox)
+	ON_BN_CLICKED(IDC_PROXY_ADD_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyAddButton)
+	ON_BN_CLICKED(IDC_PROXY_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton)
+	ON_CBN_SELCHANGE(IDC_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeInterfaceCombo)
+	ON_CBN_SELCHANGE(IDC_PROXY_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo)
 END_MESSAGE_MAP()
 
 
@@ -571,5 +575,25 @@ void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
 	// 이 알림 메시지를 보내지 않습니다.
 
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
+{
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+}
+
+
+void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton()
+{
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+
+void CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo()
+{
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
