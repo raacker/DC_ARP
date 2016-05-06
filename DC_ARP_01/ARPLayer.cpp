@@ -92,10 +92,14 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	}
 
 	//if cache is vaild and complete record
-	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))
-	{
+	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
+	{	
+		
+		
 		setTargetHardwareAddress((*cacheIter).ethernetAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
+
+		
 	}
 	//it is not valid record
 	else
