@@ -94,12 +94,8 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	//if cache is vaild and complete record
 	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
 	{	
-		
-		
 		setTargetHardwareAddress((*cacheIter).ethernetAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
-
-		
 	}
 	//it is not valid record
 	else
@@ -131,7 +127,6 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 
 	return bSuccess;
 }
-
 
 BOOL CARPLayer::Receive(unsigned char* ppayload)
 {
@@ -171,42 +166,59 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			arpCacheTable.push_back(newRecord);
 		}
 	}
+	
+	BOOL isProxyAvailable = FALSE;
+	list<ARP_CACHE_RECORD>::iterator proxyIter = arpProxyTable.begin();
+	for(proxyIter; proxyIter != arpProxyTable.end(); proxyIter++)// cache에 있는 만큼 for구문돌림.
+	{
+		if(memcmp((*proxyIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+		{
+			isProxyAvailable = TRUE;
+			break;
+		}
+	}
+	unsigned char tempHardwareAddress[6];
+	unsigned char tempIPAddress[4];
+	memset(tempHardwareAddress, 0, 6);
+	memset(tempIPAddress, 0, 4);
+
+	memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
+	memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
+
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
 		 (receivedARPTargetIPAddress[3] == ownIPAddress[3]))
 	{
-		unsigned char tempHardwareAddress[6];
-		unsigned char tempIPAddress[4];
-		memset(tempHardwareAddress, 0, 6);
-		memset(tempIPAddress, 0, 4);
-
-		memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
-		memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
-
 		memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
-		memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 		memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
-		memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
-			
-		arpHeader.arpHardwareType = 0x0100;
-		arpHeader.arpProtocolType = 0x0008;
-		arpHeader.arpHardwareAddrSize = 0x6;
-		arpHeader.arpProtocolAddrSize = 0x4;
-		arpHeader.arpOperationType = ARP_REPLY;
-		memset(arpHeader.arpData, 0, 1);
-
-		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
-		((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
-		
-		bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
-		bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, ARP_HEADER_SIZE);
+	}
+	else if(isProxyAvailable == TRUE)
+	{
+		memcpy(arpHeader.arpSenderHardwareAddress, (*proxyIter).ethernetAddress, 6);
+		memcpy(arpHeader.arpSenderIPAddress, (*proxyIter).ipAddress, 4);
 	}
 	else
-	{
-		//discard this message.
-		return bSuccess;
-	}
+		return FALSE;
+	
+	memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
+	memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
+			
+	arpHeader.arpHardwareType = 0x0100;
+	arpHeader.arpProtocolType = 0x0008;
+	arpHeader.arpHardwareAddrSize = 0x6;
+	arpHeader.arpProtocolAddrSize = 0x4;
+	arpHeader.arpOperationType = ARP_REPLY;
+	memset(arpHeader.arpData, 0, 1);
+
+	((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
+	((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
+		
+	bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
+	bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, ARP_HEADER_SIZE);
+
+	//discard this message.
+	return bSuccess;
 }
 
 void CARPLayer::OnTimer(UINT nIDEvent)
