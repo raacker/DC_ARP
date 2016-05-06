@@ -451,7 +451,6 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
 			record.Append(ipAddress);
 			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
-			record.Append(CString((*cacheIter).ethernetAddress));
 			record.Append(getCompleteString((*cacheIter).isComplete));
 			m_ArpTable.AddString(record.GetString());
 		}
@@ -479,12 +478,10 @@ CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
 	else
 	{
 		CString returnString;
-		returnString.Format(" %x%x:%x%:%x%x:%x%x:%x%x:%x%x ",
+		returnString.Format(" %2X:%2X:%2X:%2X:%2X:%2X ",
 				macAddress[0],macAddress[1],macAddress[2],
-				macAddress[3],macAddress[4],macAddress[5],
-				macAddress[6],macAddress[7],macAddress[8],
-				macAddress[9],macAddress[10],macAddress[11]);
-		return returnString;
+				macAddress[3],macAddress[4],macAddress[5]);
+		return returnString.GetString();
 	}
 }
 
@@ -561,13 +558,11 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
 	
-	m_ARP->setSenderHardwareAddress((unsigned char*)m_unGratuitousAddressstes.GetString());
-	m_ARP->setTargetHardwareAddress((unsigned char*)m_unDstEnetAddr.GetString());
+	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
 	
 	
 	m_APP->Send(ppayload,m_stMessage.GetLength());
 }
-
 
 void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 {

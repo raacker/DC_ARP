@@ -92,16 +92,28 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	}
 
 	//if cache is vaild and complete record
-	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))
-	{
+	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
+	{	
+		
+		
 		setTargetHardwareAddress((*cacheIter).ethernetAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
+
+		
 	}
 	//it is not valid record
 	else
 	{
 		memset(arpHeader.arpTargetHardwareAddress, 0, 6);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
+
+		ARP_CACHE_RECORD newRecord;
+		newRecord.arpInterface = this->adapter;
+		memset(newRecord.ethernetAddress, 0, 6);
+		memcpy(newRecord.ipAddress, targetIPAddress, 4);
+		newRecord.isComplete = FALSE;
+
+		arpCacheTable.push_back(newRecord);
 	}
 	
 	arpHeader.arpHardwareType = 0x0100;
@@ -113,13 +125,6 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	
-	ARP_CACHE_RECORD newRecord;
-	newRecord.arpInterface = this->adapter;
-	memset(newRecord.ethernetAddress, 0, 6);
-	memcpy(newRecord.ipAddress, targetIPAddress, 4);
-	newRecord.isComplete = FALSE;
-
-	arpCacheTable.push_back(newRecord);
 
 	BOOL bSuccess = FALSE ;
 	bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
@@ -133,10 +138,13 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
 	
 	BOOL bSuccess = FALSE ;
-
-	unsigned char* receivedARPTargetIPAddress = (unsigned char*)pARPFrame->arpTargetIPAddress;
-	unsigned char* receivedARPSenderIPAddress = (unsigned char*)pARPFrame->arpSenderIPAddress;
-	unsigned char* receivedARPSenderHardwareAddress = (unsigned char*)pARPFrame->arpSenderHardwareAddress;
+	
+	unsigned char receivedARPTargetIPAddress[4];
+	unsigned char receivedARPSenderIPAddress[4];
+	unsigned char receivedARPSenderHardwareAddress[6];
+	memcpy(receivedARPTargetIPAddress, (unsigned char*)pARPFrame->arpTargetIPAddress, 4);
+	memcpy(receivedARPSenderIPAddress, (unsigned char*)pARPFrame->arpSenderIPAddress, 4);
+	memcpy(receivedARPSenderHardwareAddress, (unsigned char*)pARPFrame->arpSenderHardwareAddress, 6);
 	
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
@@ -147,7 +155,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
 		for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
 		{
-			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
+			if(memcmp((*arpIter).ipAddress,receivedARPSenderIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
