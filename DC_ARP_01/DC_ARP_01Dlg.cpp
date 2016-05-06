@@ -252,6 +252,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 		sscanf(m_unSrcEnetAddr, "%02x%02x%02x%02x%02x%02x", &src_mac[0],&src_mac[1],&src_mac[2],&src_mac[3],&src_mac[4],&src_mac[5]);
 		sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
 		AfxMessageBox(m_unSrcEnetAddr);
+
 		m_ETH->SetEnetSrcAddress(src_mac);
 		m_ETH->SetEnetDstAddress(dst_mac);
 		m_ARP->setSenderHardwareAddress(src_mac);
@@ -278,8 +279,7 @@ void CDC_ARP_01Dlg::SendData()
 	ppayload[nlength] = '\0';
 	
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
-	m_ARP->setSenderHardwareAddress((unsigned char*)m_unSrcEnetAddr.GetString());
-	
+
 	m_APP->Send(ppayload,m_stMessage.GetLength());
 }
 
