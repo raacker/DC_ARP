@@ -172,18 +172,23 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
 			memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
 
-			memcpy(arpHeader.arpSenderHardwareAddress, ownIPAddress, 6);
+			memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
-			memcpy(arpHeader.arpSenderIPAddress, ownMACAddress, 4);
+			memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
-		
+			
+			arpHeader.arpHardwareType = 0x1;
+			arpHeader.arpProtocolType = 0x0608;
+			arpHeader.arpHardwareAddrSize = 0x6;
+			arpHeader.arpProtocolAddrSize = 0x4;
 			arpHeader.arpOperationType = ARP_REPLY;
-		
+			memcpy(arpHeader.arpData, pARPFrame->arpData, sizeof(pARPFrame->arpData));
+
 			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
 			((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
 		
 			bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
-			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, sizeof(ppayload));
+			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, sizeof(pARPFrame->arpData)+ARP_HEADER_SIZE);
 		}
 		return bSuccess;
 	}
