@@ -52,6 +52,7 @@ CDC_ARP_01Dlg::CDC_ARP_01Dlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDC_ARP_01Dlg::IDD, pParent),
 	CBaseLayer( "ArpDlg" ),
 	m_bSendReady(FALSE)
+	, m_unGratuitousAddressstes(_T(""))
 {
 
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -81,6 +82,7 @@ void CDC_ARP_01Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_OWN_IP_ADDRESS, m_unSrcIPAddr);
 	DDX_Control(pDX, IDC_GRATUITOUS_ADDRESS_BOX, m_unGratuitousAddresss);
 	DDX_Control(pDX, IDC_PROXY_ARP_ENTRY_LIST, m_proxyARPEntry);
+	DDX_Text(pDX, IDC_GRATUITOUS_ADDRESS_BOX, m_unGratuitousAddressstes);
 }
 
 BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
@@ -97,6 +99,9 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_NICARD_COMBO, OnComboEnetAddr)
 
 	ON_WM_TIMER()
+	ON_NOTIFY(IPN_FIELDCHANGED, IDC_ARP_SEND_IP, &CDC_ARP_01Dlg::OnIpnFieldchangedArpSendIp)
+	ON_NOTIFY(IPN_FIELDCHANGED, IDC_OWN_IP_ADDRESS, &CDC_ARP_01Dlg::OnIpnFieldchangedOwnIpAddress)
+	ON_EN_CHANGE(IDC_GRATUITOUS_ADDRESS_BOX, &CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox)
 END_MESSAGE_MAP()
 
 
@@ -211,7 +216,7 @@ void CDC_ARP_01Dlg::OnSendMessage()
 	
 	UpdateData( FALSE ) ;
 }
-void CDC_ARP_01Dlg::OnButtonAddrSet() 
+void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 {
 	// TODO: Add your control notification handler code here
 	UpdateData( TRUE ) ;
@@ -246,7 +251,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet()
 
 		sscanf(m_unSrcEnetAddr, "%02x%02x%02x%02x%02x%02x", &src_mac[0],&src_mac[1],&src_mac[2],&src_mac[3],&src_mac[4],&src_mac[5]);
 		sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
-
+		AfxMessageBox(m_unSrcEnetAddr);
 		m_ETH->SetEnetSrcAddress(src_mac);
 		m_ETH->SetEnetDstAddress(dst_mac);
 		m_ARP->setSenderHardwareAddress(src_mac);
@@ -265,6 +270,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet()
 
 void CDC_ARP_01Dlg::SendData()
 {
+
 	m_stMessage.SetString("Hello World!");
 	int nlength = m_stMessage.GetLength();
 	unsigned char* ppayload = new unsigned char[nlength+1];
@@ -340,7 +346,7 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 
 		DWORD dwIP;
 		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
-
+		//텍스트에 적힌 값 갖고오는거.
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
 
@@ -399,9 +405,9 @@ void CDC_ARP_01Dlg::OnComboEnetAddr()
 	UpdateData(TRUE);
 
 	int nIndex = m_ComboEnetName.GetCurSel();
-	m_NI->GetAdapterObject(nIndex)->name;
+	m_NI->GetAdapterObject(nIndex)->name; //뭐 골랏는지.
 
-	PPACKET_OID_DATA OidData;
+	PPACKET_OID_DATA OidData; //공간할당
 	OidData = (PPACKET_OID_DATA)malloc(sizeof(PACKET_OID_DATA));
 	OidData->Oid = 0x01010101;
 	OidData->Length = 6;
@@ -504,9 +510,71 @@ void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
 	AfxGetMainWnd()->PostMessage(WM_COMMAND,ID_APP_EXIT,0);
 }
 
-void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton()
+
+
+
+
+
+void CDC_ARP_01Dlg::OnIpnFieldchangedArpSendIp(NMHDR *pNMHDR, LRESULT *pResult)
 {
+	LPNMIPADDRESS pIPAddr = reinterpret_cast<LPNMIPADDRESS>(pNMHDR);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	*pResult = 0;
 }
 
 
+void CDC_ARP_01Dlg::OnIpnFieldchangedOwnIpAddress(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMIPADDRESS pIPAddr = reinterpret_cast<LPNMIPADDRESS>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	*pResult = 0;
+}
+
+void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton() //gratuitous 버튼 눌렀을 때.
+{
+	UpdateData( TRUE ) ;
+
+	SetTimer(1,3000,NULL);
+	
+	SendDataEditMac( ) ;
+	
+	UpdateData( FALSE ) ;
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+void CDC_ARP_01Dlg::SendDataEditMac(void)
+{
+	unsigned char src_mac[12];
+	unsigned char dst_mac[12];
+	m_stMessage.SetString("Hello World!");
+	int nlength = m_stMessage.GetLength();
+	unsigned char* ppayload = new unsigned char[nlength+1];
+	memcpy(ppayload,(unsigned char*)(LPCTSTR)m_stMessage,nlength);
+	ppayload[nlength] = '\0';
+	sscanf(m_unGratuitousAddressstes, "%02x%02x%02x%02x%02x%02x", &src_mac[0],&src_mac[1],&src_mac[2],&src_mac[3],&src_mac[4],&src_mac[5]);//Mac주소 읽어옴.
+	m_unDstEnetAddr.Format("%.2x%.2x%.2x%.2x%.2x%.2x",0xff,0xff,0xff,0xff,0xff,0xff) ;
+	
+	sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
+	AfxMessageBox(m_unGratuitousAddressstes);
+	m_IP->SetSrcIPAddress((unsigned char*)srcIPAddrString);
+	m_IP->SetDstIPAddress((unsigned char*)srcIPAddrString);
+	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
+	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
+	
+	m_ARP->setSenderHardwareAddress((unsigned char*)m_unGratuitousAddressstes.GetString());
+	m_ARP->setTargetHardwareAddress((unsigned char*)m_unDstEnetAddr.GetString());
+	
+	
+	m_APP->Send(ppayload,m_stMessage.GetLength());
+}
+
+
+void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// __super::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
