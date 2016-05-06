@@ -150,13 +150,10 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			if(memcmp(receivedARPSenderHardwareAddress,(*arpIter).ethernetAddress,6) != 0){//목적지 주소가 이미 있는데 다르다면 갱신해준다.
  				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
 				GratitousOccur = TRUE;
-				char* a = "here1";
-				AfxMessageBox(a);
 			}
-			else if(memcmp(0x0,(*arpIter).ethernetAddress,6) ==0 ){//목적지 주소가 이미 있는데 ??? 로 되있다면,
- 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
- 				char* a = "here2";
- 				AfxMessageBox(a);
+			else 
+			{
+				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
   			}
 			(*arpIter).isComplete = TRUE;
 			break;
