@@ -14,7 +14,7 @@ CARPLayer::~CARPLayer(void)
 
 void CARPLayer::ResetHeader()
 {
-	arpHeader.arpHardwareType = 0x1;
+	arpHeader.arpHardwareType = 0x0100;
 	arpHeader.arpProtocolType = 0x0008;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
@@ -104,7 +104,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
 	}
 	
-	arpHeader.arpHardwareType = 0x1;
+	arpHeader.arpHardwareType = 0x0100;
 	arpHeader.arpProtocolType = 0x0008;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
@@ -181,7 +181,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 			
-			arpHeader.arpHardwareType = 0x1;
+			arpHeader.arpHardwareType = 0x0100;
 			arpHeader.arpProtocolType = 0x0008;
 			arpHeader.arpHardwareAddrSize = 0x6;
 			arpHeader.arpProtocolAddrSize = 0x4;
