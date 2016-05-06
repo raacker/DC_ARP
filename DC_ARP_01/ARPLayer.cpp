@@ -82,9 +82,9 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 
 	BOOL isCacheAvailable = FALSE;
 	list<ARP_CACHE_RECORD>::iterator cacheIter = arpCacheTable.begin();
-	for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)
+	for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)// cache에 있는 만큼 for구문돌림.
 	{
-		if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0)
+		if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
 		{
 			isCacheAvailable = TRUE;
 			break;
@@ -204,8 +204,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	}
 }
 
-
-void CARPLayer::OnTimer(UINT nIDEvent) 
+void CARPLayer::OnTimer(UINT nIDEvent)
 {
 	
 }

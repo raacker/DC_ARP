@@ -26,7 +26,7 @@ public:
 	CComboBox			m_ComboEnetName;
 	CEdit				m_unGratuitousAddresss;
 	CListBox			m_proxyARPEntry;
-
+	CString				m_unGratuitousAddressstest;
 	CString				m_unSrcEnetAddr;
 	CString				m_unDstEnetAddr;
 	CIPAddressCtrl		m_unDstIPAddr;
@@ -93,5 +93,9 @@ private:
 	UINT			m_wParam;
 	DWORD			m_lParam;
 public:
+	afx_msg void OnIpnFieldchangedArpSendIp(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnIpnFieldchangedOwnIpAddress(NMHDR *pNMHDR, LRESULT *pResult);
+	void SendDataEditMac(void);
 	afx_msg void OnEnChangeGratuitousAddressBox();
+	CString m_unGratuitousAddressstes;
 };
