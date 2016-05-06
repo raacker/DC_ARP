@@ -148,6 +148,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		{
 			isARPRecordExist = TRUE;
 			if(memcmp(receivedARPSenderHardwareAddress,(*arpIter).ethernetAddress,6) != 0){//목적지 주소가 이미 있는데 다르다면 갱신해준다.
+ 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
 				GratitousOccur = TRUE;
 				char* a = "here1";
 				AfxMessageBox(a);
