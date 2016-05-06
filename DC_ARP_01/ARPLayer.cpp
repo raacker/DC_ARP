@@ -109,10 +109,11 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = ARP_REQUEST;
-	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
+	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);//
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	
+	//AfxmessageBox(ownMACAddress);
 	ARP_CACHE_RECORD newRecord;
 	newRecord.arpInterface = this->adapter;
 	memset(newRecord.ethernetAddress, 0, 6);
@@ -180,7 +181,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 			memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
-			
+		
 			arpHeader.arpHardwareType = 0x0100;
 			arpHeader.arpProtocolType = 0x0008;
 			arpHeader.arpHardwareAddrSize = 0x6;
