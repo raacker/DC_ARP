@@ -2,7 +2,7 @@
 #include "ARPLayer.h"
 
 CARPLayer::CARPLayer(char* pName)
-: CBaseLayer( pName ), ARP_REQUEST(0x0100), ARP_REPLY(0x0200)
+: CBaseLayer( pName ), ARP_REQUEST(0x100), ARP_REPLY(0x200)
 {
 	ResetHeader();
 }
@@ -133,6 +133,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	unsigned char* receivedARPTargetIPAddress = (unsigned char*)pARPFrame->arpTargetIPAddress;
 	unsigned char* receivedARPSenderIPAddress = (unsigned char*)pARPFrame->arpSenderIPAddress;
 	unsigned char* receivedARPSenderHardwareAddress = (unsigned char*)pARPFrame->arpSenderHardwareAddress;
+	
 	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
@@ -168,13 +169,13 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memset(tempHardwareAddress, 0, 6);
 			memset(tempIPAddress, 0, 4);
 
-			memcpy(tempHardwareAddress, arpHeader.arpSenderHardwareAddress, 6);
-			memcpy(tempIPAddress, arpHeader.arpSenderIPAddress, 4);
+			memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
+			memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
 			memcpy(arpHeader.arpTargetHardwareAddress, ownMACAddress, 6);
 
 			memcpy(arpHeader.arpSenderHardwareAddress, arpHeader.arpTargetHardwareAddress, 6);
-			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
 			memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
+			memcpy(arpHeader.arpSenderIPAddress, arpHeader.arpTargetIPAddress, 4);
 			memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 		
 			arpHeader.arpOperationType = ARP_REPLY;
