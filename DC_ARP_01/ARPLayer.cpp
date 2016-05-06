@@ -76,54 +76,63 @@ void CARPLayer::setAdapter(CString adapter)
 
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
-	memcpy( arpHeader.arpData, ppayload, length );
+	BOOL GratitousOccur = FALSE ;
+	if(memcmp(ownIPAddress,targetIPAddress,4)==0){
+	   GratitousOccur=TRUE;
+	}
+	if(GratitousOccur == FALSE){
+	
+		memcpy( arpHeader.arpData, ppayload, length );
 
-	BOOL isCacheAvailable = FALSE;
-	list<ARP_CACHE_RECORD>::iterator cacheIter = arpCacheTable.begin();
-	for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)// cache에 있는 만큼 for구문돌림.
-	{
-		if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+		BOOL isCacheAvailable = FALSE;
+		list<ARP_CACHE_RECORD>::iterator cacheIter = arpCacheTable.begin();
+		for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)// cache에 있는 만큼 for구문돌림.
 		{
-			isCacheAvailable = TRUE;
-			break;
+			if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+			{
+				isCacheAvailable = TRUE;
+				break;
+			}
 		}
-	}
 
-	//if cache is vaild and complete record
-	if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
-	{	
-		setTargetHardwareAddress((*cacheIter).ethernetAddress);
-		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
+		//if cache is vaild and complete record
+		if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
+		{	
+			setTargetHardwareAddress((*cacheIter).ethernetAddress);
+			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
+		}
+		//it is not valid record
+		else
+		{
+			memset(arpHeader.arpTargetHardwareAddress, 0, 6);
+			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
+
+			ARP_CACHE_RECORD newRecord;
+			newRecord.arpInterface = this->adapter;
+			memset(newRecord.ethernetAddress, 0, 6);
+			memcpy(newRecord.ipAddress, targetIPAddress, 4);
+			newRecord.isComplete = FALSE;
+
+			arpCacheTable.push_back(newRecord);
+		}
+	
+		arpHeader.arpHardwareType = 0x0100;
+		arpHeader.arpProtocolType = 0x0008;
+		arpHeader.arpHardwareAddrSize = 0x6;
+		arpHeader.arpProtocolAddrSize = 0x4;
+		arpHeader.arpOperationType = ARP_REQUEST;
+		memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
+		memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
+		memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
+	
+
+		BOOL bSuccess = FALSE ;
+		bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
+
+		return bSuccess;
 	}
-	//it is not valid record
 	else
-	{
-		memset(arpHeader.arpTargetHardwareAddress, 0, 6);
-		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
-
-		ARP_CACHE_RECORD newRecord;
-		newRecord.arpInterface = this->adapter;
-		memset(newRecord.ethernetAddress, 0, 6);
-		memcpy(newRecord.ipAddress, targetIPAddress, 4);
-		newRecord.isComplete = FALSE;
-
-		arpCacheTable.push_back(newRecord);
-	}
-	
-	arpHeader.arpHardwareType = 0x0100;
-	arpHeader.arpProtocolType = 0x0008;
-	arpHeader.arpHardwareAddrSize = 0x6;
-	arpHeader.arpProtocolAddrSize = 0x4;
-	arpHeader.arpOperationType = ARP_REQUEST;
-	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
-	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
-	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
-	
-
-	BOOL bSuccess = FALSE ;
-	bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
-
-	return bSuccess;
+		return TRUE;
 }
 
 BOOL CARPLayer::Receive(unsigned char* ppayload)
