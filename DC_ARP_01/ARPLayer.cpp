@@ -15,7 +15,7 @@ CARPLayer::~CARPLayer(void)
 void CARPLayer::ResetHeader()
 {
 	arpHeader.arpHardwareType = 0x1;
-	arpHeader.arpProtocolType = 0x0608;
+	arpHeader.arpProtocolType = 0x0008;
 	arpHeader.arpHardwareAddrSize = 0x6;
 	arpHeader.arpProtocolAddrSize = 0x4;
 	arpHeader.arpOperationType = 0;
@@ -104,10 +104,14 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
 	}
 	
+	arpHeader.arpHardwareType = 0x1;
+	arpHeader.arpProtocolType = 0x0008;
+	arpHeader.arpHardwareAddrSize = 0x6;
+	arpHeader.arpProtocolAddrSize = 0x4;
+	arpHeader.arpOperationType = ARP_REQUEST;
 	memcpy(arpHeader.arpSenderHardwareAddress, ownMACAddress, 6);
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
-	arpHeader.arpOperationType = ARP_REQUEST;
 	
 	ARP_CACHE_RECORD newRecord;
 	newRecord.arpInterface = this->adapter;
