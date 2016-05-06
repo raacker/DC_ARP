@@ -102,6 +102,14 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	{
 		memset(arpHeader.arpTargetHardwareAddress, 0, 6);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(BROADCAST_ADDR);
+
+		ARP_CACHE_RECORD newRecord;
+		newRecord.arpInterface = this->adapter;
+		memset(newRecord.ethernetAddress, 0, 6);
+		memcpy(newRecord.ipAddress, targetIPAddress, 4);
+		newRecord.isComplete = FALSE;
+
+		arpCacheTable.push_back(newRecord);
 	}
 	
 	arpHeader.arpHardwareType = 0x0100;
@@ -113,13 +121,6 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 	memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	
-	ARP_CACHE_RECORD newRecord;
-	newRecord.arpInterface = this->adapter;
-	memset(newRecord.ethernetAddress, 0, 6);
-	memcpy(newRecord.ipAddress, targetIPAddress, 4);
-	newRecord.isComplete = FALSE;
-
-	arpCacheTable.push_back(newRecord);
 
 	BOOL bSuccess = FALSE ;
 	bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
