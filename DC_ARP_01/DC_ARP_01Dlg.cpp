@@ -559,7 +559,7 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
 	
 	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
-	
+	m_ETH->SetEnetSrcAddress(src_mac);
 	
 	m_APP->Send(ppayload,m_stMessage.GetLength());
 }

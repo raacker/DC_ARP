@@ -96,11 +96,10 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 	{	
 		
 		
-		setTargetHardwareAddress((*cacheIter).ethernetAddress);
+		setTargetHardwareAddress((*cacheIter).ethernetAddress); //그 캐시테이블에 있는 이더넷 주소로 변경한다.
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
-
-		
-	}
+		}
+	
 	//it is not valid record
 	else
 	{
@@ -146,11 +145,11 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	memcpy(receivedARPSenderIPAddress, (unsigned char*)pARPFrame->arpSenderIPAddress, 4);
 	memcpy(receivedARPSenderHardwareAddress, (unsigned char*)pARPFrame->arpSenderHardwareAddress, 6);
 	
-	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
+	if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) && 
 		 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 		 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
 		 (receivedARPTargetIPAddress[3] == ownIPAddress[3]))
-	{
+	{//내 아이피 주소와 같다면...? 헌겸이형 코드 수정중..
 		BOOL isARPRecordExist = FALSE;
 		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
 		for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
