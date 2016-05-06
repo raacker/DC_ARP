@@ -150,7 +150,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		list<ARP_CACHE_RECORD>::iterator arpIter = arpCacheTable.begin();
 		for(arpIter; arpIter != arpCacheTable.end(); arpIter++)
 		{
-			if(memcmp((*arpIter).ipAddress,receivedARPTargetIPAddress, 4) == 0)
+			if(memcmp((*arpIter).ipAddress,receivedARPSenderIPAddress, 4) == 0)
 			{
 				isARPRecordExist = TRUE;
 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);
