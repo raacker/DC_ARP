@@ -186,13 +186,13 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			arpHeader.arpHardwareAddrSize = 0x6;
 			arpHeader.arpProtocolAddrSize = 0x4;
 			arpHeader.arpOperationType = ARP_REPLY;
-			memcpy(arpHeader.arpData, pARPFrame->arpData, sizeof(pARPFrame->arpData));
+			memset(arpHeader.arpData, 0, 1);
 
 			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
 			((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
 		
 			bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
-			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, sizeof(pARPFrame->arpData)+ARP_HEADER_SIZE);
+			bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader, ARP_HEADER_SIZE);
 		}
 		return bSuccess;
 	}
