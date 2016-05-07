@@ -76,30 +76,33 @@ void CARPLayer::setAdapter(CString adapter)
 
 BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 {
-	BOOL GratitousOccur = FALSE ;
-	if(memcmp(ownIPAddress,targetIPAddress,4)==0){
-	   GratitousOccur=TRUE;
-	}
-	if(GratitousOccur == FALSE){
-	
 		memcpy( arpHeader.arpData, ppayload, length );
 
 		BOOL isCacheAvailable = FALSE;
+		BOOL isGratuitousPacket = FALSE;
 		list<ARP_CACHE_RECORD>::iterator cacheIter = arpCacheTable.begin();
-		for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)// cache에 있는 만큼 for구문돌림.
+		if(memcmp(targetIPAddress, ownIPAddress, 4) == 0)	//if target and sender ip are same
+			isGratuitousPacket = TRUE;
+		else
 		{
-			if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+			for(cacheIter; cacheIter != arpCacheTable.end(); cacheIter++)// cache에 있는 만큼 for구문돌림.
 			{
-				isCacheAvailable = TRUE;
-				break;
+				if(memcmp((*cacheIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+				{
+					isCacheAvailable = TRUE;
+					break;
+				}
 			}
 		}
 
 		//if cache is vaild and complete record
-		if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))//만약 캐시에 있고 complete상태라면.
+		if((isCacheAvailable == TRUE) && ((*cacheIter).isComplete == TRUE))	//if cache is valid and it is complete record
 		{	
 			setTargetHardwareAddress((*cacheIter).ethernetAddress);
 			((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress((*cacheIter).ethernetAddress);
+		}
+		else if(isGratuitousPacket == TRUE)
+		{
 		}
 		//it is not valid record
 		else
@@ -130,13 +133,11 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 		bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
 
 		return bSuccess;
-	}
-	else
-		return TRUE;
 }
 
 BOOL CARPLayer::Receive(unsigned char* ppayload)
 {
+
 	PARP_HEADER pARPFrame = (PARP_HEADER)ppayload;
 	
 	BOOL bSuccess = FALSE ;
@@ -157,7 +158,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		{
 			isARPRecordExist = TRUE;
 			if(memcmp(receivedARPSenderHardwareAddress,(*arpIter).ethernetAddress,6) != 0){//목적지 주소가 이미 있는데 다르다면 갱신해준다.
- 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
+ 				 memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);// ???를 새로운 맥주소로 갱신.
 				GratitousOccur = TRUE;
 			}
 			else 
@@ -228,7 +229,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		arpHeader.arpProtocolAddrSize = 0x4;
 		arpHeader.arpOperationType = ARP_REPLY;
 		memset(arpHeader.arpData, 0, 1);
-
+		
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
 		

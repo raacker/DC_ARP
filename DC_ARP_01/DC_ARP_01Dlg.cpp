@@ -493,7 +493,8 @@ void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int index = m_ArpTable.GetCurSel();
 	if(index != LB_ERR) {
-		m_ArpTable.DeleteString(index);
+		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+ 		cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
 	}
 }
 
