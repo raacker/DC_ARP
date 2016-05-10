@@ -141,6 +141,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	
 	BOOL bSuccess = FALSE ;
 	BOOL GratitousOccur = FALSE ;
+	BOOL isNotMyIPAddress = FALSE;
 
 	unsigned char receivedARPTargetIPAddress[4];
 	unsigned char receivedARPSenderIPAddress[4];
@@ -156,21 +157,16 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		if(memcmp((*arpIter).ipAddress,receivedARPSenderIPAddress, 4) == 0)
 		{
 			isARPRecordExist = TRUE;
-			if(memcmp(receivedARPSenderHardwareAddress,(*arpIter).ethernetAddress,6) != 0){//목적지 주소가 이미 있는데 다르다면 갱신해준다.
- 				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);// ???를 새로운 맥주소로 갱신.
-				
-			}
-			else 
-			{
-				memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6); // ???를 새로운 맥주소로 갱신.
-  			}
+ 			memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);// ???를 새로운 맥주소로 갱신.
 			(*arpIter).isComplete = TRUE;
 			break;
 		}
 	}
 	if (memcmp(ownIPAddress, receivedARPSenderIPAddress, 4) == 0)
 		GratitousOccur = TRUE;
-
+	if (memcmp(ownIPAddress, receivedARPTargetIPAddress, 4) != 0)
+		isNotMyIPAddress = TRUE;
+		
 	BOOL isProxyAvailable = FALSE;
 	list<ARP_CACHE_RECORD>::iterator proxyIter = arpProxyTable.begin();
 	for(proxyIter; proxyIter != arpProxyTable.end(); proxyIter++)// cache에 있는 만큼 for구문돌림.
@@ -222,7 +218,10 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			memcpy(arpHeader.arpSenderHardwareAddress, (*proxyIter).ethernetAddress, 6);
 			memcpy(arpHeader.arpSenderIPAddress, (*proxyIter).ipAddress, 4);
 		}
-	
+		
+		if(isNotMyIPAddress == TRUE && isProxyAvailable == FALSE)
+			return FALSE;
+
 		memcpy(arpHeader.arpTargetHardwareAddress, tempHardwareAddress, 6);
 		memcpy(arpHeader.arpTargetIPAddress, tempIPAddress, 4);
 			

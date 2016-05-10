@@ -142,7 +142,7 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
 	SetTimer(2, 2000, NULL);
-	SetTimer(3, 6000, NULL);
+	SetTimer(3, 10000, NULL);
 	SetTimer(4, 20000, NULL);
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
