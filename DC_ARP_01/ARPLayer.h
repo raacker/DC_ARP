@@ -64,6 +64,7 @@ public:
 	
 
 	list<ARP_CACHE_RECORD> arpCacheTable;
+	list<ARP_CACHE_RECORD> arpProxyTable;
 
 protected:
 	ARP_HEADER arpHeader;
