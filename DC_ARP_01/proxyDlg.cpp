@@ -64,6 +64,7 @@ void proxyDlg::OnBnClickedOk()
 	int n = device.GetCurSel();
 	device.GetLBText(n,selectedDevice);
 	proxyIPAddr.GetAddress(proxyIPAddrString[0],proxyIPAddrString[1],proxyIPAddrString[2],proxyIPAddrString[3]);
+
 	sscanf(proxyAddr, "%02x%02x%02x%02x%02x%02x", &proxy_mac[0],&proxy_mac[1],&proxy_mac[2],&proxy_mac[3],&proxy_mac[4],&proxy_mac[5]);
 	
 	memcpy(proxyMACAddr, proxy_mac, 6);

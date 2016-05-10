@@ -65,7 +65,6 @@ public:
 	afx_msg void OnBnClickedGratuitousSendButton();
 	afx_msg void CDC_ARP_01Dlg::OnBnClickedProxyAddButton();
 	afx_msg void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton();
-	afx_msg void CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo();
 	CString getCompleteString(BOOL isComplete);
 	CString getMACAddressString(unsigned char* macAddress);
 	
@@ -103,5 +102,5 @@ public:
 	void SendDataEditMac(void);
 	afx_msg void OnEnChangeGratuitousAddressBox();
 	CString m_unGratuitousAddressstes;
-	afx_msg void OnLbnSelchangeProxyArpEntryList();
+	afx_msg void OnBnClickedWindowCloseButton();
 };

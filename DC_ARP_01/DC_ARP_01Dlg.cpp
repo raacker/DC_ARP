@@ -103,8 +103,7 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_GRATUITOUS_ADDRESS_BOX, &CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox)
 	ON_BN_CLICKED(IDC_PROXY_ADD_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyAddButton)
 	ON_BN_CLICKED(IDC_PROXY_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton)
-	ON_CBN_SELCHANGE(IDC_PROXY_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo)
-	ON_LBN_SELCHANGE(IDC_PROXY_ARP_ENTRY_LIST, &CDC_ARP_01Dlg::OnLbnSelchangeProxyArpEntryList)
+	ON_BN_CLICKED(IDC_WINDOW_CLOSE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedWindowCloseButton)
 END_MESSAGE_MAP()
 
 
@@ -689,15 +688,8 @@ void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton()
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
-
-
-void CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo()
-{
-	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}
-
-
-void CDC_ARP_01Dlg::OnLbnSelchangeProxyArpEntryList()
+void CDC_ARP_01Dlg::OnBnClickedWindowCloseButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CDialogEx::OnCancel();
 }
