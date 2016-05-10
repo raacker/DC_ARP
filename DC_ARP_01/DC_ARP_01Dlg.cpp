@@ -364,6 +364,7 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 		pARPSendIP->EnableWindow( FALSE ) ;
 		pEnetNameCombo->EnableWindow( FALSE );
 		pARPSendButton->EnableWindow( TRUE );
+		pARPSendIP->EnableWindow( FALSE );
 
 		pOWNIPAddress->GetAddress(srcIPAddrString[0],srcIPAddrString[1],srcIPAddrString[2],srcIPAddrString[3]) ;
 
@@ -475,6 +476,7 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 				else
 					cacheIter++;
 			}
+			KillTimer(3);
 		break;
 		}
 	case 4:{
@@ -486,7 +488,9 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 						cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
 					}
 				}
+				KillTimer(4);
 				break;
+		
 			}
 		}
 	
