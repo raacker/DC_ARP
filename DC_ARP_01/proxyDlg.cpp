@@ -64,7 +64,5 @@ void proxyDlg::OnBnClickedOk()
 	proxyIPAddr.GetAddress(proxyIPAddrString[0],proxyIPAddrString[1],proxyIPAddrString[2],proxyIPAddrString[3]);
 	sscanf(proxyAddr, "%02x%02x%02x%02x%02x%02x", &proxyMACAddr[0],&proxyMACAddr[1],&proxyMACAddr[2],&proxyMACAddr[3],&proxyMACAddr[4],&proxyMACAddr[5]);
 	
-	UpdateData( FALSE );
-
 	CDialogEx::OnOK();
 }
