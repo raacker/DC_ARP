@@ -104,6 +104,7 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_PROXY_ADD_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyAddButton)
 	ON_BN_CLICKED(IDC_PROXY_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton)
 	ON_CBN_SELCHANGE(IDC_PROXY_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo)
+	ON_LBN_SELCHANGE(IDC_PROXY_ARP_ENTRY_LIST, &CDC_ARP_01Dlg::OnLbnSelchangeProxyArpEntryList)
 END_MESSAGE_MAP()
 
 
@@ -141,7 +142,7 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
 	SetTimer(2, 2000, NULL);
-	SetTimer(3, 3000, NULL);
+	SetTimer(3, 6000, NULL);
 	SetTimer(4, 20000, NULL);
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
@@ -466,33 +467,27 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 	case 3:{
 			list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
 			for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
-				if(((*cacheIter).ethernetAddress[0] == 0) && ((*cacheIter).ethernetAddress[1] == 0) &&
-					((*cacheIter).ethernetAddress[2] == 0) && ((*cacheIter).ethernetAddress[9] == 0) && 
-					((*cacheIter).ethernetAddress[10] == 0) && ((*cacheIter).ethernetAddress[11] == 0)){
-						cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
-					}
-				else{
-						cacheIter++;
+				if ((*cacheIter).isComplete == FALSE)
+				{
+					cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
 				}
-				}
-			break;
+				else
+					cacheIter++;
 			}
+		break;
+		}
 	case 4:{
 				list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
 				for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
-						if(((*cacheIter).ethernetAddress[0] == 0) && ((*cacheIter).ethernetAddress[1] == 0) &&
-							((*cacheIter).ethernetAddress[2] == 0) && ((*cacheIter).ethernetAddress[9] == 0) && 
-							((*cacheIter).ethernetAddress[10] == 0) && ((*cacheIter).ethernetAddress[11] == 0)){
-						//nothing happen
-								 cacheIter++;
-							}
-						else{
-								cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
-							}
+					if ((*cacheIter).isComplete == FALSE)
+						cacheIter++;
+					else{
+						cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
 					}
-					break;
 				}
+				break;
 			}
+		}
 	
 
 	CDialog::OnTimer(nIDEvent);
@@ -641,11 +636,10 @@ void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 		memcpy(newRecord.ipAddress, dlg.proxyIPAddrString, 4);
 		newRecord.isComplete = TRUE;
 		recordtext.Append(newRecord.arpInterface);
-		recordtext.Append(getMACAddressString(newRecord.ethernetAddress));
 		recordipAddress.Format(" %3d.%3d.%3d.%3d ", newRecord.ipAddress[0],newRecord.ipAddress[1],
 									newRecord.ipAddress[2],newRecord.ipAddress[3] );
 		recordtext.Append(recordipAddress);
-		recordtext.Append(getCompleteString(newRecord.isComplete));
+		recordtext.Append(getMACAddressString(newRecord.ethernetAddress));
 		m_proxyARPEntry.AddString(recordtext);
 
 		m_ARP->arpProxyTable.push_back(newRecord);
@@ -655,6 +649,38 @@ void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 
 void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton()
 {
+	int i=0;
+	int index = m_proxyARPEntry.GetCurSel();
+	if(index != LB_ERR) {
+		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpProxyTable.begin();
+		for(cacheIter; cacheIter != m_ARP->arpProxyTable.end(); cacheIter++)
+		{
+			if(i == index){
+ 				cacheIter = m_ARP->arpProxyTable.erase(cacheIter);
+				break;
+			}
+			else{
+				i++;
+			}
+		}
+	
+	
+		m_proxyARPEntry.ResetContent();
+		cacheIter = m_ARP->arpProxyTable.begin();
+		for(cacheIter; cacheIter != m_ARP->arpProxyTable.end(); cacheIter++)
+		{
+			CString record;
+			CString saveIpaddress;
+			record.Append((*cacheIter).arpInterface);
+			saveIpaddress.Format(" %3d.%3d.%3d.%3d ", (*cacheIter).ipAddress[0],(*cacheIter).ipAddress[1],
+									(*cacheIter).ipAddress[2],(*cacheIter).ipAddress[3] );
+			record.Append(saveIpaddress);
+			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
+			record.Append(getCompleteString((*cacheIter).isComplete));
+			m_proxyARPEntry.AddString(record.GetString());
+		}
+		m_proxyARPEntry.UpdateData(TRUE);
+	}
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
@@ -663,4 +689,10 @@ void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton()
 void CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo()
 {
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDC_ARP_01Dlg::OnLbnSelchangeProxyArpEntryList()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
