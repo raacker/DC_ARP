@@ -100,8 +100,6 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_NICARD_COMBO, OnComboEnetAddr)
 
 	ON_WM_TIMER()
-	ON_NOTIFY(IPN_FIELDCHANGED, IDC_ARP_SEND_IP, &CDC_ARP_01Dlg::OnIpnFieldchangedArpSendIp)
-	ON_NOTIFY(IPN_FIELDCHANGED, IDC_OWN_IP_ADDRESS, &CDC_ARP_01Dlg::OnIpnFieldchangedOwnIpAddress)
 	ON_EN_CHANGE(IDC_GRATUITOUS_ADDRESS_BOX, &CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox)
 	ON_BN_CLICKED(IDC_PROXY_ADD_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyAddButton)
 	ON_BN_CLICKED(IDC_PROXY_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton)
@@ -457,6 +455,7 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 			CString ipAddress;
 			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
 									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
+			
 			record.Append(ipAddress);
 			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
 			record.Append(getCompleteString((*cacheIter).isComplete));
@@ -568,13 +567,14 @@ void CDC_ARP_01Dlg::OnIpnFieldchangedOwnIpAddress(NMHDR *pNMHDR, LRESULT *pResul
 {
 	LPNMIPADDRESS pIPAddr = reinterpret_cast<LPNMIPADDRESS>(pNMHDR);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
 	*pResult = 0;
 }
 
 void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton() //gratuitous 버튼 눌렀을 때.
 {
 	UpdateData( TRUE ) ;
-
+	
 	SetTimer(1,3000,NULL);
 	
 	SendDataEditMac( ) ;
