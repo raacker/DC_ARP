@@ -142,8 +142,6 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
 	SetTimer(2, 2000, NULL);
-	SetTimer(3, 3000, NULL);
-	SetTimer(4, 20000, NULL);
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
 
@@ -297,7 +295,8 @@ BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
 	memset(GetBuff,0,len_ppayload);
 	memcpy(GetBuff,ppayload,len_ppayload);
 	GetBuff[len_ppayload] = '\0';
-	
+	SetTimer(4, 20000, NULL);
+
 	KillTimer(1);
 	
 	return TRUE ;
@@ -352,6 +351,8 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 		DWORD dwIP;
 		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
 		//텍스트에 적힌 값 갖고오는거.
+		
+		SetTimer(3, 3000, NULL);
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
 

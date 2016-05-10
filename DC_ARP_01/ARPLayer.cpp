@@ -181,7 +181,10 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	if(GratitousOccur == FALSE)
 	{
 		if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REPLY))
+		{
+			bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pARPFrame->arpData);
 			return TRUE;
+		}
 		if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REQUEST))
 		{
 			if(isARPRecordExist == FALSE)
