@@ -601,7 +601,6 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_unDstEnetAddr.Format("%.2x%.2x%.2x%.2x%.2x%.2x",0xff,0xff,0xff,0xff,0xff,0xff) ;
 	
 	sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
-	AfxMessageBox(m_unGratuitousAddressstes);
 	m_IP->SetSrcIPAddress((unsigned char*)srcIPAddrString);
 	m_IP->SetDstIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
@@ -629,8 +628,22 @@ void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 {
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	proxyDlg dlg;
-	dlg.DoModal();
+	proxyDlg dlg(this);
+	int result = dlg.DoModal();
+	if(result == IDOK)
+	{
+		CString device = dlg.selectedDevice;
+		unsigned char* ip = dlg.proxyIPAddrString;
+		CString mac = dlg.proxyMACAddr;
+		CARPLayer::ARP_CACHE_RECORD newRecord;
+		
+		newRecord.arpInterface = mac;
+		memcpy(newRecord.ethernetAddress, mac, 6);
+		memcpy(newRecord.ipAddress, ip, 4);
+		newRecord.isComplete = TRUE;
+
+		m_ARP->arpProxyTable.push_back(newRecord);
+	}
 }
 
 

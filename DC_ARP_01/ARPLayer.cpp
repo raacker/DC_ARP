@@ -169,9 +169,20 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 			break;
 		}
 	}
+	
+	BOOL isProxyAvailable = FALSE;
+	list<ARP_CACHE_RECORD>::iterator proxyIter = arpProxyTable.begin();
+	for(proxyIter; proxyIter != arpProxyTable.end(); proxyIter++)// cache에 있는 만큼 for구문돌림.
+	{
+		if(memcmp((*proxyIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+		{
+			isProxyAvailable = TRUE;
+			break;
+		}
+	}
 
 	if(GratitousOccur == FALSE)
-		{
+	{
 		if(ntohs(pARPFrame->arpOperationType) == ntohs(ARP_REQUEST))
 		{
 			if(isARPRecordExist == FALSE)
@@ -185,17 +196,6 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 				arpCacheTable.push_back(newRecord);
 			}
 		}
-	
-		BOOL isProxyAvailable = FALSE;
-		list<ARP_CACHE_RECORD>::iterator proxyIter = arpProxyTable.begin();
-		for(proxyIter; proxyIter != arpProxyTable.end(); proxyIter++)// cache에 있는 만큼 for구문돌림.
-		{
-			if(memcmp((*proxyIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
-			{
-				isProxyAvailable = TRUE;
-				break;
-			}
-		}
 		unsigned char tempHardwareAddress[6];
 		unsigned char tempIPAddress[4];
 		memset(tempHardwareAddress, 0, 6);
@@ -204,6 +204,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		memcpy(tempHardwareAddress, receivedARPSenderHardwareAddress, 6);
 		memcpy(tempIPAddress, receivedARPSenderIPAddress, 4);
 
+		
 		if ( (receivedARPTargetIPAddress[0] == ownIPAddress[0]) &&
 			 (receivedARPTargetIPAddress[1] == ownIPAddress[1]) &&
 			 (receivedARPTargetIPAddress[2] == ownIPAddress[2]) &&
