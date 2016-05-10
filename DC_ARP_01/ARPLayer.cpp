@@ -128,7 +128,6 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 		memcpy(arpHeader.arpSenderIPAddress, ownIPAddress, 4);
 		memcpy(arpHeader.arpTargetIPAddress, targetIPAddress, 4);
 	
-
 		BOOL bSuccess = FALSE ;
 		bSuccess = mp_UnderLayer->Send((unsigned char*)&arpHeader,length+ARP_HEADER_SIZE);
 
@@ -229,7 +228,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 		arpHeader.arpProtocolAddrSize = 0x4;
 		arpHeader.arpOperationType = ARP_REPLY;
 		memset(arpHeader.arpData, 0, 1);
-		
+
 		((CEthernetLayer*)GetUnderLayer())->SetEnetDstAddress(arpHeader.arpTargetHardwareAddress);
 		((CEthernetLayer*)GetUnderLayer())->SetEnetSrcAddress(arpHeader.arpSenderHardwareAddress);
 		

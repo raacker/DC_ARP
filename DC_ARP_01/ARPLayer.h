@@ -2,6 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -60,6 +61,7 @@ public:
 
 	BOOL Send(unsigned char* ppayload, int length);
 	BOOL Receive(unsigned char* ppayload);
+	
 
 	list<ARP_CACHE_RECORD> arpCacheTable;
 	list<ARP_CACHE_RECORD> arpProxyTable;
