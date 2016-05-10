@@ -646,7 +646,6 @@ void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 									newRecord.ipAddress[2],newRecord.ipAddress[3] );
 		recordtext.Append(recordipAddress);
 		recordtext.Append(getMACAddressString(newRecord.ethernetAddress));
-		recordtext.Append(getCompleteString(newRecord.isComplete));
 		m_proxyARPEntry.AddString(recordtext);
 
 		m_ARP->arpProxyTable.push_back(newRecord);
