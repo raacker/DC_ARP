@@ -103,4 +103,5 @@ public:
 	void SendDataEditMac(void);
 	afx_msg void OnEnChangeGratuitousAddressBox();
 	CString m_unGratuitousAddressstes;
+	afx_msg void OnLbnSelchangeProxyArpEntryList();
 };
