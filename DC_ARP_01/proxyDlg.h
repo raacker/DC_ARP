@@ -27,7 +27,7 @@ public:
 	CIPAddressCtrl		proxyIPAddr;
 	CEdit				proxyEthAddr;
 	unsigned char		proxyIPAddrString[4];
-	unsigned char		proxyMACAddr[12];
+	unsigned char		proxyMACAddr[6];
 	CString				proxyAddr;
 	CString				selectedDevice;
 	afx_msg void OnBnClickedCancel();
