@@ -58,10 +58,16 @@ void proxyDlg::OnBnClickedCancel()
 void proxyDlg::OnBnClickedOk()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	unsigned char proxy_mac[12];
+
 	UpdateData( TRUE );
 	int n = device.GetCurSel();
 	device.GetLBText(n,selectedDevice);
 	proxyIPAddr.GetAddress(proxyIPAddrString[0],proxyIPAddrString[1],proxyIPAddrString[2],proxyIPAddrString[3]);
-	sscanf(proxyAddr, "%02x%02x%02x%02x%02x%02x", &proxyMACAddr[0],&proxyMACAddr[1],&proxyMACAddr[2],&proxyMACAddr[3],&proxyMACAddr[4],&proxyMACAddr[5]);
+
+	sscanf(proxyAddr, "%02x%02x%02x%02x%02x%02x", &proxy_mac[0],&proxy_mac[1],&proxy_mac[2],&proxy_mac[3],&proxy_mac[4],&proxy_mac[5]);
+	
+	memcpy(proxyMACAddr, proxy_mac, 6);
+
 	CDialogEx::OnOK();
 }
