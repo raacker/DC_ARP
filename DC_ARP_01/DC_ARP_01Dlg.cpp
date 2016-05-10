@@ -632,14 +632,11 @@ void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 	int result = dlg.DoModal();
 	if(result == IDOK)
 	{
-		CString device = dlg.selectedDevice;
-		unsigned char* ip = dlg.proxyIPAddrString;
-		CString mac = dlg.proxyMACAddr;
 		CARPLayer::ARP_CACHE_RECORD newRecord;
 		
-		newRecord.arpInterface = mac;
-		memcpy(newRecord.ethernetAddress, mac, 6);
-		memcpy(newRecord.ipAddress, ip, 4);
+		newRecord.arpInterface = dlg.selectedDevice;
+		memcpy(newRecord.ethernetAddress, dlg.proxyMACAddr, 6);
+		memcpy(newRecord.ipAddress, dlg.proxyIPAddrString, 4);
 		newRecord.isComplete = TRUE;
 
 		m_ARP->arpProxyTable.push_back(newRecord);
