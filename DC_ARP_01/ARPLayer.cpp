@@ -173,7 +173,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	list<ARP_CACHE_RECORD>::iterator proxyIter = arpProxyTable.begin();
 	for(proxyIter; proxyIter != arpProxyTable.end(); proxyIter++)// cache에 있는 만큼 for구문돌림.
 	{
-		if(memcmp((*proxyIter).ipAddress, targetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
+		if(memcmp((*proxyIter).ipAddress, receivedARPTargetIPAddress, 4) == 0) //만약 같은 ip가 있다면 
 		{
 			isProxyAvailable = TRUE;
 			break;
