@@ -14,7 +14,7 @@ public:
 	virtual ~proxyDlg();
 
 // 대화 상자 데이터입니다.
-	enum { IDD = IDD_DIALOG1 };
+	enum { IDD = IDD_PROXY_Dlg };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
@@ -25,7 +25,8 @@ public:
 	CIPAddressCtrl		proxyIPAddr;
 	CEdit				proxyEthAddr;
 	unsigned char		proxyIPAddrString[4];
-	CString				proxyMACAddr;;
+	unsigned char		proxyMACAddr[12];
+	CString				proxyAddr;
 	CString				selectedDevice;
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnBnClickedOk();

@@ -102,8 +102,5 @@ public:
 	afx_msg void OnIpnFieldchangedOwnIpAddress(NMHDR *pNMHDR, LRESULT *pResult);
 	void SendDataEditMac(void);
 	afx_msg void OnEnChangeGratuitousAddressBox();
-	afx_msg void OnBnClickedProxyAddButton();
-	afx_msg void OnBnClickedProxyDeleteButton();
-	afx_msg void OnCbnSelchangeProxyInterfaceCombo();
 	CString m_unGratuitousAddressstes;
 };
