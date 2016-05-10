@@ -105,7 +105,6 @@ BEGIN_MESSAGE_MAP(CDC_ARP_01Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_GRATUITOUS_ADDRESS_BOX, &CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox)
 	ON_BN_CLICKED(IDC_PROXY_ADD_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyAddButton)
 	ON_BN_CLICKED(IDC_PROXY_DELETE_BUTTON, &CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton)
-	ON_CBN_SELCHANGE(IDC_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeInterfaceCombo)
 	ON_CBN_SELCHANGE(IDC_PROXY_INTERFACE_COMBO, &CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo)
 END_MESSAGE_MAP()
 
@@ -144,6 +143,8 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
 	SetTimer(2, 2000, NULL);
+	SetTimer(3, 3000, NULL);
+	SetTimer(4, 20000, NULL);
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
 
@@ -442,10 +443,11 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 {
 	switch(nIDEvent)
 	{
-	case 1:
+	case 1:{
 		KillTimer( 1 ) ;
-	
-	case 2:
+		break;
+		   }
+	case 2:{
 		m_ArpTable.ResetContent();
 		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
 		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); cacheIter++)
@@ -459,8 +461,39 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 			record.Append(getCompleteString((*cacheIter).isComplete));
 			m_ArpTable.AddString(record.GetString());
 		}
-		m_ArpTable.UpdateData(TRUE);
-	}
+				m_ArpTable.UpdateData(TRUE);
+				break;
+		   }
+	case 3:{
+			list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+			for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
+				if(((*cacheIter).ethernetAddress[0] == 0) && ((*cacheIter).ethernetAddress[1] == 0) &&
+					((*cacheIter).ethernetAddress[2] == 0) && ((*cacheIter).ethernetAddress[9] == 0) && 
+					((*cacheIter).ethernetAddress[10] == 0) && ((*cacheIter).ethernetAddress[11] == 0)){
+						cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
+					}
+				else{
+						cacheIter++;
+				}
+				}
+			break;
+			}
+	case 4:{
+				list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+				for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
+						if(((*cacheIter).ethernetAddress[0] == 0) && ((*cacheIter).ethernetAddress[1] == 0) &&
+							((*cacheIter).ethernetAddress[2] == 0) && ((*cacheIter).ethernetAddress[9] == 0) && 
+							((*cacheIter).ethernetAddress[10] == 0) && ((*cacheIter).ethernetAddress[11] == 0)){
+						//nothing happen
+								 cacheIter++;
+							}
+						else{
+								cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
+							}
+					}
+					break;
+				}
+			}
 	
 
 	CDialog::OnTimer(nIDEvent);
@@ -493,9 +526,20 @@ CString CDC_ARP_01Dlg::getMACAddressString(unsigned char* macAddress)
 void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int i=0;
 	int index = m_ArpTable.GetCurSel();
 	if(index != LB_ERR) {
-		m_ArpTable.DeleteString(index);
+		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
+		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); cacheIter++)
+		{
+			if(i == index){
+ 				cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
+				return;
+			}
+			else{
+				i++;
+			}
+		}
 	}
 }
 
@@ -562,7 +606,9 @@ void CDC_ARP_01Dlg::SendDataEditMac(void)
 	m_IP->SetDstIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setSenderIPAddress((unsigned char*)srcIPAddrString);
 	m_ARP->setTargetIPAddress((unsigned char*)srcIPAddrString);
-	
+
+	m_ETH->SetEnetSrcAddress(src_mac);
+
 	m_ARP->setSenderHardwareAddress((unsigned char*)src_mac);
 	
 	
