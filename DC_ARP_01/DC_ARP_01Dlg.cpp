@@ -7,6 +7,7 @@
 #include "DC_ARP_01Dlg.h"
 #include "afxdialogex.h"
 #include "ARPLayer.h"
+#include "proxyDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -582,7 +583,8 @@ void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 {
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
+	proxyDlg dlg;
+	dlg.DoModal();
 }
 
 

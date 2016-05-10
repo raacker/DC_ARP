@@ -35,6 +35,8 @@ public:
 	unsigned char		dstIPAddrString[4];
 	CString				m_stMessage;
 
+	unsigned char		porxyIPAddrString[4];
+
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
 
@@ -61,6 +63,9 @@ public:
 	afx_msg void OnBnClickedArpAllDeleteButton();
 	afx_msg void OnBnClickedWindowOkButton();
 	afx_msg void OnBnClickedGratuitousSendButton();
+	afx_msg void CDC_ARP_01Dlg::OnBnClickedProxyAddButton();
+	afx_msg void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton();
+	afx_msg void CDC_ARP_01Dlg::OnCbnSelchangeProxyInterfaceCombo();
 	CString getCompleteString(BOOL isComplete);
 	CString getMACAddressString(unsigned char* macAddress);
 	
