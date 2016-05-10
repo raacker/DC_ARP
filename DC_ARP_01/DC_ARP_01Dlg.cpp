@@ -627,6 +627,8 @@ void CDC_ARP_01Dlg::OnEnChangeGratuitousAddressBox()
 
 void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 {
+	CString recordtext;
+	CString recordipAddress;
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	proxyDlg dlg(this);
 	int result = dlg.DoModal();
@@ -638,6 +640,13 @@ void CDC_ARP_01Dlg::OnBnClickedProxyAddButton()
 		memcpy(newRecord.ethernetAddress, dlg.proxyMACAddr, 6);
 		memcpy(newRecord.ipAddress, dlg.proxyIPAddrString, 4);
 		newRecord.isComplete = TRUE;
+		recordtext.Append(newRecord.arpInterface);
+		recordtext.Append(getMACAddressString(newRecord.ethernetAddress));
+		recordipAddress.Format(" %3d.%3d.%3d.%3d ", newRecord.ipAddress[0],newRecord.ipAddress[1],
+									newRecord.ipAddress[2],newRecord.ipAddress[3] );
+		recordtext.Append(recordipAddress);
+		recordtext.Append(getCompleteString(newRecord.isComplete));
+		m_proxyARPEntry.AddString(recordtext);
 
 		m_ARP->arpProxyTable.push_back(newRecord);
 	}
