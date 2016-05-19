@@ -352,7 +352,7 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
 		//텍스트에 적힌 값 갖고오는거.
 		
-		SetTimer(3, 3000, NULL);
+		SetTimer(3, 10000, NULL);
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
 
