@@ -115,6 +115,7 @@ BOOL CARPLayer::Send(unsigned char* ppayload, int length)
 			memset(newRecord.ethernetAddress, 0, 6);
 			memcpy(newRecord.ipAddress, targetIPAddress, 4);
 			newRecord.isComplete = FALSE;
+			newRecord.lifeTimeCounter = INCOMPLETE_DELETE_TIME;
 
 			arpCacheTable.push_back(newRecord);
 		}
@@ -165,6 +166,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
  			memcpy((*arpIter).ethernetAddress, receivedARPSenderHardwareAddress, 6);// 맥주소를 새로 받아온 걸로 갱신. 자세히는 gratitous, ???? , 중복상태를 나누어야하지만 그냥.. 
 																					// 무조건 갱신하도록 함. 
 			(*arpIter).isComplete = TRUE; // complete 되었다고 표시.
+			(*arpIter).lifeTimeCounter = COMPLETE_DELETE_TIME;
 			break;
 		}
 	}
@@ -200,6 +202,7 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 				memcpy(newRecord.ethernetAddress, receivedARPSenderHardwareAddress, 6);
 				memcpy(newRecord.ipAddress, receivedARPSenderIPAddress, 4);
 				newRecord.isComplete = TRUE;
+				newRecord.lifeTimeCounter = INCOMPLETE_DELETE_TIME;
 
 				arpCacheTable.push_back(newRecord);
 			}
@@ -265,9 +268,4 @@ BOOL CARPLayer::Receive(unsigned char* ppayload)
 	}
 	else	//gratitous 가 발생 했다면 그냥리턴, 얘는 테이블갱신만 해주면 작업이 끝나는 것이므로.
 		return TRUE;
-}
-
-void CARPLayer::OnTimer(UINT nIDEvent)
-{
-	
 }

@@ -208,11 +208,12 @@ HCURSOR CDC_ARP_01Dlg::OnQueryDragIcon()
 
 void CDC_ARP_01Dlg::OnSendMessage()  
 {
+	unsigned char dst_ip[4];
 	// TODO: Add your control notification handler code here
 	UpdateData( TRUE ) ;
 
 	SetTimer(1,3000,NULL);// file transfer 할 때 응답이 없으면 오류메세지 띄울 때 사용된건데 사실상 여기선 필요 없음.
-	m_ARP->setTargetIPAddress((unsigned char*)dstIPAddrString);
+	m_ARP->setTargetIPAddress(dst_ip);
 	
 	SendData( ) ;
 	
@@ -223,7 +224,6 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 	// TODO: Add your control notification handler code here
 	UpdateData( TRUE ) ;
 	unsigned char src_ip[4];
-	unsigned char dst_ip[4];
 	unsigned char src_mac[12];
 	unsigned char dst_mac[12];
 
@@ -244,12 +244,9 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 	}
 	else{
 		m_unSrcIPAddr.GetAddress(src_ip[0],src_ip[1],src_ip[2],src_ip[3]);
-		m_unDstIPAddr.GetAddress(dst_ip[0],dst_ip[1],dst_ip[2],dst_ip[3]);
 
 		m_IP->SetSrcIPAddress(src_ip);
-		m_IP->SetDstIPAddress(dst_ip);
 		m_ARP->setSenderIPAddress(src_ip);
-		m_ARP->setTargetIPAddress(dst_ip);
 
 		sscanf(m_unSrcEnetAddr, "%02x%02x%02x%02x%02x%02x", &src_mac[0],&src_mac[1],&src_mac[2],&src_mac[3],&src_mac[4],&src_mac[5]);
 		sscanf(m_unDstEnetAddr, "%02x%02x%02x%02x%02x%02x", &dst_mac[0],&dst_mac[1],&dst_mac[2],&dst_mac[3],&dst_mac[4],&dst_mac[5]);
@@ -294,7 +291,6 @@ BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
 	memset(GetBuff,0,len_ppayload);
 	memcpy(GetBuff,ppayload,len_ppayload);
 	GetBuff[len_ppayload] = '\0';
-	SetTimer(4, 20000, NULL); // 패킷을 받으면 4번 타이머가 불림. 20초 뒤에 arptable의 맥주소가 있는(물음표 상태가 아닌) 원소를 없앰.
 
 	KillTimer(1);
 	
@@ -350,12 +346,7 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 		DWORD dwIP;
 		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
 		//텍스트에 적힌 값 갖고오는거.
-		
-<<<<<<< HEAD
-		SetTimer(3, 10000, NULL);
-=======
-		SetTimer(3, 3000, NULL);// 패킷을 받으면 3번 타이머가 불림. 3초 뒤에 arptable의 맥주소가 ???상태인 원소를 없앰.
->>>>>>> 626b22fbab183189aab82b2d7c9f85b8e8c22cd1
+
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
 
@@ -454,49 +445,28 @@ void CDC_ARP_01Dlg::OnTimer(UINT nIDEvent)
 	case 2:{
 		m_ArpTable.ResetContent();
 		list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
-		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); cacheIter++)
+		for(cacheIter; cacheIter != m_ARP->arpCacheTable.end(); )
 		{
-			CString record;
-			CString ipAddress;
-			ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
-									(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
+			if(!(--(*cacheIter).lifeTimeCounter))
+				m_ARP->arpCacheTable.erase(cacheIter++);
+			else
+			{
+				CString record;
+				CString ipAddress;
+				ipAddress.Format(" %3d.%3d.%3d.%3d ", (unsigned char)(*cacheIter).ipAddress[0],(unsigned char)(*cacheIter).ipAddress[1],
+													(unsigned char)(*cacheIter).ipAddress[2],(unsigned char)(*cacheIter).ipAddress[3] );
 			
-			record.Append(ipAddress);
-			record.Append(getMACAddressString((*cacheIter).ethernetAddress));
-			record.Append(getCompleteString((*cacheIter).isComplete));
-			m_ArpTable.AddString(record.GetString());
-		}
-				m_ArpTable.UpdateData(TRUE);
-				break;
-		   }
-	case 3:{
-			list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
-			for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
-				if ((*cacheIter).isComplete == FALSE)
-				{
-					cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
-				}
-				else
-					cacheIter++;
+				record.Append(ipAddress);
+				record.Append(getMACAddressString((*cacheIter).ethernetAddress));
+				record.Append(getCompleteString((*cacheIter).isComplete));
+				m_ArpTable.AddString(record.GetString());
+				cacheIter++;
 			}
-			KillTimer(3);
+		}
+		m_ArpTable.UpdateData(TRUE);
 		break;
-		}
-	case 4:{
-				list<CARPLayer::ARP_CACHE_RECORD>::iterator cacheIter = m_ARP->arpCacheTable.begin();
-				for(cacheIter; cacheIter != m_ARP->arpCacheTable.end();){
-					if ((*cacheIter).isComplete == FALSE)
-						cacheIter++;
-					else{
-						cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
-					}
-				}
-				KillTimer(4);
-				break;
-		
-			}
-		}
-	
+		   }
+	}
 
 	CDialog::OnTimer(nIDEvent);
 }
@@ -538,9 +508,8 @@ void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
  				cacheIter = m_ARP->arpCacheTable.erase(cacheIter);
 				return;
 			}
-			else{
+			else
 				i++;
-			}
 		}
 	}
 }
@@ -549,7 +518,7 @@ void CDC_ARP_01Dlg::OnBnClickedArpItemDeleteButton()
 void CDC_ARP_01Dlg::OnBnClickedArpAllDeleteButton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_ArpTable.ResetContent();
+	m_ARP->arpCacheTable.clear();
 }
 
 void CDC_ARP_01Dlg::OnBnClickedWindowOkButton()
@@ -667,11 +636,9 @@ void CDC_ARP_01Dlg::OnBnClickedProxyDeleteButton()
  				cacheIter = m_ARP->arpProxyTable.erase(cacheIter);
 				break;
 			}
-			else{
+			else
 				i++;
-			}
 		}
-	
 	
 		m_proxyARPEntry.ResetContent();
 		cacheIter = m_ARP->arpProxyTable.begin();

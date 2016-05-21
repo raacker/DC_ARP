@@ -15,6 +15,9 @@
 #include <pcap.h>
 #include <Packet32.h>
 
+#define COMPLETE_DELETE_TIME 20
+#define INCOMPLETE_DELETE_TIME 3
+
 class CARPLayer : public CBaseLayer
 {
 private:
@@ -48,6 +51,7 @@ public:
 		unsigned char ipAddress[4];
 		unsigned char ethernetAddress[6];
 		BOOL isComplete;
+		unsigned int lifeTimeCounter;
 	} ARP_CACHE_RECORD, *PARP_CACHE_RECORD;
 
 	void setARPOperationType(unsigned char operationType);
@@ -56,7 +60,6 @@ public:
 	void setTargetIPAddress(unsigned char* targetIP);
 	void setTargetHardwareAddress(unsigned char* targetHard);
 	void setAdapter(CString adapter);
-	void OnTimer(UINT nIDEvent) ;
 	list<ARP_CACHE_RECORD> getARPCacheTable(void);
 
 	BOOL Send(unsigned char* ppayload, int length);
