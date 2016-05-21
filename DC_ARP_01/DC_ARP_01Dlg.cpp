@@ -140,7 +140,7 @@ BOOL CDC_ARP_01Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetRegstryMessage( ) ;
-	SetTimer(2, 2000, NULL);
+	SetTimer(2, 2000, NULL); // Timer 동작함. arptable을 2초마다 갱신해줌.
 	SetDlgState(IPC_INITIALIZING);
 	SetDlgState(CFT_COMBO_SET);
 
@@ -211,7 +211,7 @@ void CDC_ARP_01Dlg::OnSendMessage()
 	// TODO: Add your control notification handler code here
 	UpdateData( TRUE ) ;
 
-	SetTimer(1,3000,NULL);
+	SetTimer(1,3000,NULL);// file transfer 할 때 응답이 없으면 오류메세지 띄울 때 사용된건데 사실상 여기선 필요 없음.
 	m_ARP->setTargetIPAddress((unsigned char*)dstIPAddrString);
 	
 	SendData( ) ;
@@ -237,7 +237,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 
 		return ;
 	}
-
+	//setting button 눌렀을 때는 자신의 ip, mac 상대방의 ip가 설정됨.
 	if ( m_bSendReady ){
 		SetDlgState( IPC_ADDR_RESET ) ;
 		SetDlgState( IPC_INITIALIZING ) ;
@@ -294,7 +294,7 @@ BOOL CDC_ARP_01Dlg::Receive(unsigned char *ppayload)
 	memset(GetBuff,0,len_ppayload);
 	memcpy(GetBuff,ppayload,len_ppayload);
 	GetBuff[len_ppayload] = '\0';
-	SetTimer(4, 20000, NULL);
+	SetTimer(4, 20000, NULL); // 패킷을 받으면 4번 타이머가 불림. 20초 뒤에 arptable의 맥주소가 있는(물음표 상태가 아닌) 원소를 없앰.
 
 	KillTimer(1);
 	
@@ -351,7 +351,11 @@ void CDC_ARP_01Dlg::SetDlgState(int state) // 다이얼로그 초기화 부분
 		pARPSendIP->GetAddress(dstIPAddrString[0],dstIPAddrString[1],dstIPAddrString[2],dstIPAddrString[3] );
 		//텍스트에 적힌 값 갖고오는거.
 		
+<<<<<<< HEAD
 		SetTimer(3, 10000, NULL);
+=======
+		SetTimer(3, 3000, NULL);// 패킷을 받으면 3번 타이머가 불림. 3초 뒤에 arptable의 맥주소가 ???상태인 원소를 없앰.
+>>>>>>> 626b22fbab183189aab82b2d7c9f85b8e8c22cd1
 		m_ArpTable.EnableWindow( TRUE ) ;
 		break ;
 
@@ -587,7 +591,7 @@ void CDC_ARP_01Dlg::OnBnClickedGratuitousSendButton() //gratuitous 버튼 눌렀을 �
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
-void CDC_ARP_01Dlg::SendDataEditMac(void)
+void CDC_ARP_01Dlg::SendDataEditMac(void) //맥주소 바꿔서 보내는 gratitous
 {
 	unsigned char src_mac[12];
 	unsigned char dst_mac[12];

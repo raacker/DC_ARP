@@ -40,7 +40,7 @@ public:
 		unsigned char arpTargetIPAddress[4];
 		unsigned char arpData[ARP_DATA_SIZE];
 
-	} ARP_HEADER, *PARP_HEADER;
+	} ARP_HEADER, *PARP_HEADER;//∆˜¿Œ≈Õ.
 
 	typedef struct _ARP_CACHE_RECORD
 	{
