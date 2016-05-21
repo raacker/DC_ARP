@@ -213,6 +213,7 @@ void CDC_ARP_01Dlg::OnSendMessage()
 	UpdateData( TRUE ) ;
 
 	SetTimer(1,3000,NULL);// file transfer 할 때 응답이 없으면 오류메세지 띄울 때 사용된건데 사실상 여기선 필요 없음.
+	m_unDstIPAddr.GetAddress(dst_ip[0],dst_ip[1],dst_ip[2],dst_ip[3]);
 	m_ARP->setTargetIPAddress(dst_ip);
 	
 	SendData( ) ;
@@ -224,6 +225,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 	// TODO: Add your control notification handler code here
 	UpdateData( TRUE ) ;
 	unsigned char src_ip[4];
+	unsigned char dst_ip[4];
 	unsigned char src_mac[12];
 	unsigned char dst_mac[12];
 
@@ -244,6 +246,7 @@ void CDC_ARP_01Dlg::OnButtonAddrSet() //세팅버튼 눌렀을 때.
 	}
 	else{
 		m_unSrcIPAddr.GetAddress(src_ip[0],src_ip[1],src_ip[2],src_ip[3]);
+		m_unDstIPAddr.GetAddress(dst_ip[0],dst_ip[1],dst_ip[2],dst_ip[3]);
 
 		m_IP->SetSrcIPAddress(src_ip);
 		m_ARP->setSenderIPAddress(src_ip);
